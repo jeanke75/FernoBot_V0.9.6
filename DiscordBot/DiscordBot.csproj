@@ -61,7 +61,7 @@
     <GenerateManifests>true</GenerateManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <SignManifests>true</SignManifests>
+    <SignManifests>false</SignManifests>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject />
@@ -194,7 +194,6 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="DiscordBot_TemporaryKey.pfx" />
     <None Include="packages.config" />
     <Content Include="RPG.sqlite">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
