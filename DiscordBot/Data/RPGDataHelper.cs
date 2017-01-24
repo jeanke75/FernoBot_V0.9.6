@@ -125,7 +125,7 @@ namespace DiscordBot.Data
                             cmd.CommandText = "insert into Users(DiscordID) values (@DiscordID)";
                             await cmd.ExecuteNonQueryAsync();
 
-                            // retrieve userid
+                            /*// retrieve userid
                             long userId = 0;
                             cmd.CommandText = "select UserID from Users where DiscordID = @DiscordID";
                             using (SqlDataReader reader = cmd.ExecuteReader())
@@ -163,7 +163,7 @@ namespace DiscordBot.Data
                             // give gauntlets
                             cmd.CommandText = string.Format("insert into Inventory (User, ItemID, Amount) " +
                                                             "values ({0}, {1}, {2})", discordId, 53, 1);
-                            await cmd.ExecuteNonQueryAsync();*/
+                            await cmd.ExecuteNonQueryAsync();
 
                             // equip gear
                             cmd.CommandText = "insert into Equipped (User, HelmetID, UpperID, PantsID, BootsID, GloveID, MantleID, ShieldID, WeaponID) " +
@@ -174,7 +174,7 @@ namespace DiscordBot.Data
                             cmd.Parameters.Add("@DateTime", DbType.DateTime).Value = new DateTime(2000, 1, 1, 0, 0, 0);
                             cmd.CommandText = "insert into Cooldowns(User, Start, Stats, Assign, Inventory, Equip, Donate, Info, Shop, Attack, Heal, Craft) " +
                                               "values (@UserID, @DateTime, @DateTime, @DateTime, @DateTime, @DateTime, @DateTime, @DateTime, @DateTime, @DateTime, @DateTime, @DateTime)";//, Helper.DateTimeToString(new DateTime(2000, 1, 1, 0, 0, 0)));
-                            await cmd.ExecuteNonQueryAsync();
+                            await cmd.ExecuteNonQueryAsync();*/
                         }
                         tr.Commit();
                     }
