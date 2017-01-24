@@ -120,12 +120,12 @@ namespace DiscordBot.Data
                         using (SqlCommand cmd = conn.CreateCommand())
                         {
                             cmd.Transaction = tr;
-                            cmd.Parameters.Add("@DiscordID", DbType.Int64).Value = (long)discordId;
+                            cmd.Parameters.Add("@DiscordID", DbType.Decimal).Value = discordId;
                             // add user to the database
                             cmd.CommandText = "insert into Users(DiscordID) values (@DiscordID)";
                             await cmd.ExecuteNonQueryAsync();
 
-                            /*// retrieve userid
+                            // retrieve userid
                             long userId = 0;
                             cmd.CommandText = "select UserID from Users where DiscordID = @DiscordID";
                             using (SqlDataReader reader = cmd.ExecuteReader())
