@@ -365,7 +365,14 @@ namespace DiscordBot
                 .AddCheck((command, user, channel) => !paused)
                 .Do(async e =>
                 {
-                    await e.Channel.SendMessage(await RPG_Controller.Create(e.Message.User));
+                    try
+                    {
+                        await e.Channel.SendMessage(await RPG_Controller.Create(e.Message.User));
+                    }
+                    catch(Exception ex)
+                    {
+                        await e.Channel.SendMessage(ex.ToString());
+                    }
                 });
             
             _client.GetService<CommandService>().CreateCommand("stats")
