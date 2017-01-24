@@ -108,7 +108,7 @@ namespace DiscordBot
                     }
                     catch(Exception ex)
                     {
-                        await e.Channel.SendMessage(ex.Message);
+                        await e.Channel.SendMessage(ex.ToString());
                     }
                 });
 
@@ -371,7 +371,7 @@ namespace DiscordBot
                     }
                     catch(Exception ex)
                     {
-                        await e.Channel.SendMessage(ex.ToString());
+                        await e.Channel.SendMessage(ex.Message);
                     }
                 });
             
