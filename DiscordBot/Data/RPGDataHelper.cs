@@ -120,7 +120,7 @@ namespace DiscordBot.Data
                         using (SqlCommand cmd = conn.CreateCommand())
                         {
                             cmd.Transaction = tr;
-                            cmd.Parameters.Add("@DiscordID", DbType.UInt64).Value = discordId;
+                            cmd.Parameters.Add("@DiscordID", DbType.Int64).Value = (long)discordId;
                             // add user to the database
                             cmd.CommandText = "insert into Users(DiscordID) values (@DiscordID)";
                             await cmd.ExecuteNonQueryAsync();
