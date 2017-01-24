@@ -36,7 +36,7 @@ namespace DiscordBot.Controllers
         {
             try
             {
-                if (await RPGDataHelper.UserStartedAdventure(user.Id)) return $"{Helper.getDiscordDisplayName(user)}, you've already started your adventure.";
+                //if (await RPGDataHelper.UserStartedAdventure(user.Id)) return $"{Helper.getDiscordDisplayName(user)}, you've already started your adventure.";
 
                 await RPGDataHelper.Create(user.Id);
             
