@@ -38,7 +38,7 @@ namespace DiscordBot.Model
             }
         }
 
-        private double _baseSense
+        private double _baseLuck
         {
             get
             {
@@ -58,7 +58,7 @@ namespace DiscordBot.Model
         private int _strength;
         private int _dexterity;
         private int _stamina;
-        private int _sense;
+        private int _luck;
         #endregion
 
         public int strength
@@ -85,11 +85,11 @@ namespace DiscordBot.Model
             }
         }
 
-        public int sense
+        public int luck
         {
             get
             {
-                return (int)Math.Floor(_baseSense) + _sense + equipment.getEquipmentSenseBonus();
+                return (int)Math.Floor(_baseLuck) + _luck + equipment.getEquipmentSenseBonus();
             }
         }
 
@@ -97,7 +97,7 @@ namespace DiscordBot.Model
         {
             get
             {
-                return ((level - 1) * 3 + (int)Math.Floor(level * 0.2) * 2) - (_strength + _dexterity + _stamina + _sense);
+                return ((level - 1) * 3 + (int)Math.Floor(level * 0.2) * 2) - (_strength + _dexterity + _stamina + _luck);
             }
         }
 
@@ -149,13 +149,13 @@ namespace DiscordBot.Model
             }
         }
 
-        public Stats(User user, int level, int str, int dex, int sta, int sns, int health, int experience, int gold, Equipment equipment) {
+        public Stats(User user, int level, int str, int dex, int sta, int lck, int health, int experience, int gold, Equipment equipment) {
             name = Helper.getDiscordDisplayName(user);
             this.level = level;
             _strength = str;
             _dexterity = dex;
             _stamina = sta;
-            _sense = sns;
+            _luck = lck;
             this.health = health;
             this.experience = experience;
             this.gold = gold;
@@ -173,7 +173,7 @@ namespace DiscordBot.Model
                        "|" + Environment.NewLine +
                       $"| Attributes: {statpoints}" + Environment.NewLine +
                       $"| Strength: {strength}  Dexterity: {dexterity}" + Environment.NewLine +
-                      $"| Stamina: {stamina}  Sense: {sense}" + Environment.NewLine +
+                      $"| Stamina: {stamina}  Sense: {luck}" + Environment.NewLine +
                        "|" + Environment.NewLine +
                       $"| Weapon: {(equipment.weapon != null ? equipment.weapon.name : "/")}  Shield: {(equipment.shield != null ? equipment.shield.name : "/")}" + Environment.NewLine +
                       $"| Helmet: {(equipment.helmet != null ? equipment.helmet.name : "/")}  Mantle: {(equipment.mantle != null ? equipment.mantle.name : "/")}" + Environment.NewLine +

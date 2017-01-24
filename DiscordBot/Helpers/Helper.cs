@@ -1,5 +1,6 @@
 ﻿using System;
-using System.Data.SQLite;
+using System.Configuration;
+using System.Data.SqlClient;
 using System.Linq;
 using Discord;
 using DiscordBot.Model;
@@ -26,7 +27,7 @@ namespace DiscordBot.Helpers
             }
         }
 
-        internal static Item parseItem(SQLiteDataReader reader)
+        internal static Item parseItem(SqlDataReader reader)
         {
             Item item;
             switch ((string)reader["Type"])
@@ -89,6 +90,20 @@ namespace DiscordBot.Helpers
         internal static string DateTimeToString(DateTime datetime)
         {
             return datetime.ToString("yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture);
+        }
+
+        internal static SqlConnection getConnection()
+        {
+            Uri uri = new Uri(ConfigurationManager.AppSettings["SQLSERVER_URI"]);
+            string connectionString = new SqlConnectionStringBuilder
+            {
+                DataSource = uri.Host,
+                InitialCatalog = uri.AbsolutePath.Trim('/'),
+                UserID = uri.UserInfo.Split(':').First(),
+                Password = uri.UserInfo.Split(':').Last(),
+            }.ConnectionString;
+
+            return new SqlConnection(connectionString);
         }
     }
 }

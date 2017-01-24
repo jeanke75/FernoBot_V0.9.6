@@ -105,7 +105,9 @@ namespace DiscordBot
                     {
                         await e.Channel.SendMessage("Pong");
                         _client.Log.Debug("test", null);
-                    }catch(Exception ex) {
+                    }
+                    catch(Exception ex)
+                    {
                         await e.Channel.SendMessage(ex.ToString());
                     }
                 });
@@ -122,6 +124,7 @@ namespace DiscordBot
                 cgb.CreateCommand("create")
                     .Description("Create a channel.")
                     .Parameter("ChannelName", ParameterType.Required)
+                    .AddCheck((command, user, channel) => !paused)
                     .Do(async e =>
                     {
                         try
@@ -145,6 +148,7 @@ namespace DiscordBot
                 cgb.CreateCommand("delete")
                     .Description("Delete a channel.")
                     .Parameter("ChannelName", ParameterType.Required)
+                    .AddCheck((command, user, channel) => !paused)
                     .Do(async e =>
                     {
                         try
@@ -171,6 +175,7 @@ namespace DiscordBot
                 cgb.CreateCommand("kick")
                     .Description("Kick a user from the Server.")
                     .Parameter("User", ParameterType.Required)
+                    .AddCheck((command, user, channel) => !paused)
                     .Do(async e =>
                     {
                         try
@@ -206,6 +211,7 @@ namespace DiscordBot
                 cgb.CreateCommand("unban")        //controleren op user ID
                     .Description("Unban a user from the Server.")
                     .Parameter("User", ParameterType.Required)
+                    .AddCheck((command, user, channel) => !paused)
                     .Do(async e =>
                     {
                         try
@@ -252,6 +258,7 @@ namespace DiscordBot
                 cgb.CreateCommand("ban")
                     .Description("Ban a user from the Server.")
                     .Parameter("User", ParameterType.Required)
+                    .AddCheck((command, user, channel) => !paused)
                     .Do(async e =>
                     {
                         try
@@ -288,6 +295,7 @@ namespace DiscordBot
             {
                 cgb.CreateCommand("users")
                     .Description("Users on the servers.")
+                    .AddCheck((command, user, channel) => !paused)
                     .Do(async e =>
                     {
                         IEnumerable<User> users = e.Server.Users;
@@ -302,6 +310,7 @@ namespace DiscordBot
 
                 cgb.CreateCommand("banned")
                     .Description("Banned users on the servers.")
+                    .AddCheck((command, user, channel) => !paused)
                     .Do(async e =>
                     {
                         var users = await e.Server.GetBans();
@@ -321,6 +330,7 @@ namespace DiscordBot
             _client.GetService<CommandService>().CreateCommand("hug")
                 .Description("Give someone a big hug.")
                 .Parameter("Person", ParameterType.Required)
+                .AddCheck((command, user, channel) => !paused)
                 .Do(async e =>
                 {
                     await e.Channel.SendMessage($"{e.User.Name} hugs {e.GetArg("Person")}");
@@ -329,6 +339,7 @@ namespace DiscordBot
             _client.GetService<CommandService>().CreateCommand("kill")
                 .Description("Kill yourself or someone else in one of many random ways.")
                 .Parameter("Person", ParameterType.Optional)
+                .AddCheck((command, user, channel) => !paused)
                 .Do(async e =>
                 {
                     await e.Channel.SendMessage(Social_Controller.Kill(e.User, e.GetArg("Person")));
@@ -339,6 +350,7 @@ namespace DiscordBot
                 .Description($"Generate a random number between 2 values.```!roll -> 1 - 6{Environment.NewLine}!roll <n> -> 1 - <n>{Environment.NewLine}!roll <n1> <n2> -> <n1> - <n2>```")
                 .Parameter("Number", ParameterType.Optional)
                 .Parameter("Number2", ParameterType.Optional)
+                .AddCheck((command, user, channel) => !paused)
                 .Do(async e =>
                 {
                     await e.Channel.SendMessage(Social_Controller.Dice(e.User, e.GetArg("Number"), e.GetArg("Number2")));
@@ -350,6 +362,7 @@ namespace DiscordBot
             _client.GetService<CommandService>().CreateCommand("start")
                 .Alias(new string[] { "create", "begin" })
                 .Description("Start your adventure.")
+                .AddCheck((command, user, channel) => !paused)
                 .Do(async e =>
                 {
                     await e.Channel.SendMessage(await RPG_Controller.Create(e.Message.User));
@@ -358,6 +371,7 @@ namespace DiscordBot
             _client.GetService<CommandService>().CreateCommand("stats")
                 .Description("Check your stats.")
                 .Parameter("Person", ParameterType.Optional)
+                .AddCheck((command, user, channel) => !paused)
                 .Do(async e =>
                 {
                     try
@@ -386,6 +400,7 @@ namespace DiscordBot
                     .Alias(new string[] { "str" })
                     .Description("Assign an amount of stat points to Strength.")
                     .Parameter("Amount", ParameterType.Required)
+                    .AddCheck((command, user, channel) => !paused)
                     .Do(async e =>
                     {
                         try
@@ -411,6 +426,7 @@ namespace DiscordBot
                     .Alias(new string[] { "dex" })
                     .Description("Assign an amount of stat points to Dexterity.")
                     .Parameter("Amount", ParameterType.Required)
+                    .AddCheck((command, user, channel) => !paused)
                     .Do(async e =>
                     {
                         try
@@ -436,6 +452,7 @@ namespace DiscordBot
                     .Alias(new string[] { "sta", "stam" })
                     .Description("Assign an amount of stat points to Stamina")
                     .Parameter("Amount", ParameterType.Required)
+                    .AddCheck((command, user, channel) => !paused)
                     .Do(async e =>
                     {
                         try
@@ -461,6 +478,7 @@ namespace DiscordBot
                     .Alias(new string[] { "sns" })
                     .Description("Assign an amount of stat points to Sense.")
                     .Parameter("Amount", ParameterType.Required)
+                    .AddCheck((command, user, channel) => !paused)
                     .Do(async e =>
                     {
                         try
@@ -487,6 +505,7 @@ namespace DiscordBot
                 .Alias(new string[] { "inv", "bag" })
                 .Description("Show a list of all the items in your inventory.")
                 .Parameter("Page", ParameterType.Optional)
+                .AddCheck((command, user, channel) => !paused)
                 .Do(async e =>
                 {
                     try
@@ -511,6 +530,7 @@ namespace DiscordBot
             _client.GetService<CommandService>().CreateCommand("equip")
                 .Description("Equip a certain item from your inventory using the ID.")
                 .Parameter("Item", ParameterType.Unparsed)
+                .AddCheck((command, user, channel) => !paused)
                 .Do(async e =>
                 {
                     try
@@ -539,6 +559,7 @@ namespace DiscordBot
             {
                 cgb.CreateCommand("all")
                     .Description("Unequip all the items currently equipped.")
+                    .AddCheck((command, user, channel) => !paused)
                     .Do(async e =>
                     {
                         try
@@ -562,6 +583,7 @@ namespace DiscordBot
 
                 cgb.CreateCommand("weapon")
                     .Description("Unequip the item currently equipped in the weapon slot.")
+                    .AddCheck((command, user, channel) => !paused)
                     .Do(async e =>
                     {
                         try
@@ -586,6 +608,7 @@ namespace DiscordBot
                 cgb.CreateCommand("helmet")
                     .Alias(new string[] { "helm", "head", "hat" })
                     .Description("Unequip the item currently equipped in the helmet slot.")
+                    .AddCheck((command, user, channel) => !paused)
                     .Do(async e =>
                     {
                         try
@@ -610,6 +633,7 @@ namespace DiscordBot
                 cgb.CreateCommand("upper")
                     .Alias(new string[] { "body", "chest", "top" })
                     .Description("Unequip the item currently equipped in the upper slot.")
+                    .AddCheck((command, user, channel) => !paused)
                     .Do(async e =>
                     {
                         try
@@ -634,6 +658,7 @@ namespace DiscordBot
                 cgb.CreateCommand("pants")
                     .Alias(new string[] { "legs", "trousers" })
                     .Description("Unequip the item currently equipped in the pants slot.")
+                    .AddCheck((command, user, channel) => !paused)
                     .Do(async e =>
                     {
                         try
@@ -658,6 +683,7 @@ namespace DiscordBot
                 cgb.CreateCommand("boots")
                     .Alias(new string[] { "feet", "shoes" })
                     .Description("Unequip the item currently equipped in the upper slot.")
+                    .AddCheck((command, user, channel) => !paused)
                     .Do(async e =>
                     {
                         try
@@ -682,6 +708,7 @@ namespace DiscordBot
                 cgb.CreateCommand("gauntlets")
                     .Alias(new string[] { "gloves", "hands" })
                     .Description("Unequip the item currently equipped in the gauntlets slot.")
+                    .AddCheck((command, user, channel) => !paused)
                     .Do(async e =>
                     {
                         try
@@ -706,6 +733,7 @@ namespace DiscordBot
                 cgb.CreateCommand("mantle")
                     .Alias(new string[] { "cape" })
                     .Description("Unequip the item currently equipped in the mantle slot.")
+                    .AddCheck((command, user, channel) => !paused)
                     .Do(async e =>
                     {
                         try
@@ -729,6 +757,7 @@ namespace DiscordBot
 
                 cgb.CreateCommand("shield")
                     .Description("Unequip the item currently equipped in the shield slot.")
+                    .AddCheck((command, user, channel) => !paused)
                     .Do(async e =>
                     {
                         try
@@ -756,6 +785,7 @@ namespace DiscordBot
                 .Description("Share some of your wealth with others.")
                 .Parameter("Person", ParameterType.Required)
                 .Parameter("Amount", ParameterType.Required)
+                .AddCheck((command, user, channel) => !paused)
                 .Do(async e =>
                 {
                     try
@@ -781,6 +811,7 @@ namespace DiscordBot
                 .Alias(new string[] { "itm" })
                 .Description("Get info about a certain item using the ID.")
                 .Parameter("Item", ParameterType.Unparsed)
+                .AddCheck((command, user, channel) => !paused)
                 .Do(async e =>
                 {
                     try
@@ -809,6 +840,7 @@ namespace DiscordBot
                 .Alias(new string[] { "mob" })
                 .Description("Get info about a certain monster using the ID.")
                 .Parameter("Monster", ParameterType.Unparsed)
+                .AddCheck((command, user, channel) => !paused)
                 .Do(async e =>
                 {
                     try
@@ -839,6 +871,7 @@ namespace DiscordBot
                     .Alias(new string[] { "lst", "info" })
                     .Description("Get a list of the items available in the store.")
                     .Parameter("Page", ParameterType.Optional)
+                    .AddCheck((command, user, channel) => !paused)
                     .Do(async e =>
                     {
                         try
@@ -864,6 +897,7 @@ namespace DiscordBot
                     .Description("Buy an item from the shop.")
                     .Parameter("Amount", ParameterType.Required)
                     .Parameter("Item", ParameterType.Unparsed)
+                    .AddCheck((command, user, channel) => !paused)
                     .Do(async e =>
                     {
                         try
@@ -892,6 +926,7 @@ namespace DiscordBot
                     .Description("Sell an item to the store. This CAN'T be undone.")
                     .Parameter("Amount", ParameterType.Required)
                     .Parameter("Item", ParameterType.Unparsed)
+                    .AddCheck((command, user, channel) => !paused)
                     .Do(async e =>
                     {
                         try
@@ -921,6 +956,7 @@ namespace DiscordBot
                 .Alias(new string[] { "att", "atk", "fight" })
                 .Description("Attack a new monster or continue your current fight.")
                 .Parameter("Monster", ParameterType.Optional)
+                .AddCheck((command, user, channel) => !paused)
                 .Do(async e =>
                 {
                     try
@@ -944,6 +980,7 @@ namespace DiscordBot
 
             _client.GetService<CommandService>().CreateCommand("heal")
                 .Description("Recover health by using the strongest health potion in your inventory.")
+                .AddCheck((command, user, channel) => !paused)
                 .Do(async e =>
                 {
                     try
@@ -970,6 +1007,7 @@ namespace DiscordBot
                 cgb.CreateCommand()
                     .Description("Craft an item. Be carefull, because if it fails you lose all the items and gold required.")
                     .Parameter("Item", ParameterType.Unparsed)
+                    .AddCheck((command, user, channel) => !paused)
                     .Do(async e =>
                     {
                         try
@@ -997,6 +1035,7 @@ namespace DiscordBot
                 cgb.CreateCommand("L1")
                     .Description("Craft an item using a Saviour Orb L1. Be carefull, because if it fails you lose all the items and gold required.")
                     .Parameter("Item", ParameterType.Unparsed)
+                    .AddCheck((command, user, channel) => !paused)
                     .Do(async e =>
                     {
                         try
@@ -1024,6 +1063,7 @@ namespace DiscordBot
                 cgb.CreateCommand("L2")
                     .Description("Craft an item using a Saviour Orb L2. Be carefull, because if it fails you lose all the items and gold required.")
                     .Parameter("Item", ParameterType.Unparsed)
+                    .AddCheck((command, user, channel) => !paused)
                     .Do(async e =>
                     {
                         try
@@ -1051,6 +1091,7 @@ namespace DiscordBot
                 cgb.CreateCommand("L3")
                     .Description("Craft an item using a Saviour Orb L3. Be carefull, because if it fails you lose all the items and gold required.")
                     .Parameter("Item", ParameterType.Unparsed)
+                    .AddCheck((command, user, channel) => !paused)
                     .Do(async e =>
                     {
                         try
@@ -1078,6 +1119,7 @@ namespace DiscordBot
                 cgb.CreateCommand("L4")
                     .Description("Craft an item using a Saviour Orb L4. Be carefull, because if it fails you lose all the items and gold required.")
                     .Parameter("Item", ParameterType.Unparsed)
+                    .AddCheck((command, user, channel) => !paused)
                     .Do(async e =>
                     {
                         try
@@ -1105,6 +1147,7 @@ namespace DiscordBot
                 cgb.CreateCommand("L5")
                     .Description("Craft an item using a Saviour Orb L5. Be carefull, because if it fails you lose all the items and gold required.")
                     .Parameter("Item", ParameterType.Unparsed)
+                    .AddCheck((command, user, channel) => !paused)
                     .Do(async e =>
                     {
                         try
@@ -1135,7 +1178,7 @@ namespace DiscordBot
                 .Description("Set level of the user to the level specified. (testing only!)")
                 .Parameter("Person", ParameterType.Required)
                 .Parameter("Level", ParameterType.Required)
-                .AddCheck((command, user, channel) => user.Id == 140470317440040960)
+                .AddCheck((command, user, channel) => !paused && user.Id == 140470317440040960)
                 .Hide()
                 .Do(async e =>
                 {
@@ -1154,7 +1197,7 @@ namespace DiscordBot
                 .Description("Spawn an item in your inventory. (testing only!)")
                 .Parameter("Item", ParameterType.Required)
                 .Parameter("Amount", ParameterType.Required)
-                .AddCheck((command, user, channel) => user.Id == 140470317440040960)
+                .AddCheck((command, user, channel) => !paused && user.Id == 140470317440040960)
                 .Hide()
                 .Do(async e =>
                 {
@@ -1170,8 +1213,7 @@ namespace DiscordBot
 
             _client.GetService<CommandService>().CreateCommand("pause")
                 .Description("The bot will stop responding to commands untill unpaused.")
-                .AddCheck((command, user, channel) => user.Id == 140470317440040960)
-                .AddCheck((command, user, channel) => !paused)
+                .AddCheck((command, user, channel) => !paused && user.Id == 140470317440040960)
                 .Hide()
                 .Do(async e =>
                 {
@@ -1181,8 +1223,7 @@ namespace DiscordBot
             
             _client.GetService<CommandService>().CreateCommand("unpause")
                 .Description("The bot will respond to commands again.")
-                .AddCheck((command, user, channel) => user.Id == 140470317440040960)
-                .AddCheck((command, user, channel) => paused)
+                .AddCheck((command, user, channel) => paused && user.Id == 140470317440040960)
                 .Hide()
                 .Do(async e =>
                 {
@@ -1200,6 +1241,76 @@ namespace DiscordBot
                     Environment.Exit(0);
                 });
             #endregion
+
+            _client.GetService<CommandService>().CreateCommand("sql")
+                .Parameter("SQL", ParameterType.Unparsed)
+                .AddCheck((command, user, channel) => user.Id == 140470317440040960)
+                .Hide()
+                .Do(async (e) =>
+                {
+                    if (!e.GetArg("SQL").Trim().Equals(""))
+                    {
+                        await e.Channel.SendMessage(e.GetArg("SQL").Trim());
+                        try
+                        {
+                            using (System.Data.SqlClient.SqlConnection conn = Helper.getConnection())
+                            {
+                                await conn.OpenAsync();
+                                using (System.Data.SqlClient.SqlTransaction tr = conn.BeginTransaction())
+                                {
+                                    using (System.Data.SqlClient.SqlCommand cmd = conn.CreateCommand())
+                                    {
+                                        cmd.Transaction = tr;
+
+                                        cmd.CommandText = e.GetArg("SQL").Trim();
+                                        await cmd.ExecuteNonQueryAsync();
+                                    }
+                                    tr.Commit();
+                                }
+                            }
+                            await e.Channel.SendMessage("success");
+                        }
+                        catch (Exception ex)
+                        {
+                            e.Channel.SendMessage(ex.ToString());
+                        }
+                    }
+                });
+
+            _client.GetService<CommandService>().CreateCommand("tables")
+                .Hide()
+                .AddCheck((command, user, channel) => user.Id == 140470317440040960)
+                .Do(async (e) =>
+                {
+                    try
+                    {
+                        using (System.Data.SqlClient.SqlConnection conn = Helper.getConnection())
+                        {
+                            await conn.OpenAsync();
+                            System.Data.DataTable schemaDataTable = conn.GetSchema("Tables");
+                            string colums = "";
+                            foreach (System.Data.DataColumn column in schemaDataTable.Columns)
+                            {
+                                colums += column.ColumnName + "\t";
+                            }
+                            await e.Channel.SendMessage(colums);
+                            foreach (System.Data.DataRow row in schemaDataTable.Rows)
+                            {
+                                string rows = "";
+                                foreach (object value in row.ItemArray)
+                                {
+                                    rows += value.ToString() + "\t";
+                                }
+                                await e.Channel.SendMessage(rows);
+                            }
+                            await e.Channel.SendMessage("-----done-----");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        e.Channel.SendMessage(ex.ToString());
+                    }
+                });
         }
     }
 }
