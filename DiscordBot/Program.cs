@@ -14,6 +14,7 @@ namespace DiscordBot
     {
         private readonly string _token = ConfigurationManager.AppSettings["TOKEN"];
         private readonly string _appName = ConfigurationManager.AppSettings["APP_NAME"];
+        private static bool paused = false;
 
         public static void Main(string[] args)
         {
@@ -97,6 +98,7 @@ namespace DiscordBot
 
             _client.GetService<CommandService>().CreateCommand("ping")
                 .Description("Will respond with pong if the bot is up.")
+                .AddCheck((command, user, channel) => !paused)
                 .Do(async e =>
                 {
                     try
@@ -1133,16 +1135,14 @@ namespace DiscordBot
                 .Description("Set level of the user to the level specified. (testing only!)")
                 .Parameter("Person", ParameterType.Required)
                 .Parameter("Level", ParameterType.Required)
+                .AddCheck((command, user, channel) => user.Id == 140470317440040960)
                 .Hide()
                 .Do(async e =>
                 {
                     try
                     {
-                        if (e.Message.User.Id == 140470317440040960)
-                        {
-                            await Data.RPGDataHelper.setLevel(Helper.getUserFromMention(e.Server, e.GetArg("Person")).Id, int.Parse(e.GetArg("Level")));
-                            await e.Channel.SendMessage($"{e.GetArg("Person")} set to level {int.Parse(e.GetArg("Level"))}");
-                        }
+                        await Data.RPGDataHelper.setLevel(Helper.getUserFromMention(e.Server, e.GetArg("Person")).Id, int.Parse(e.GetArg("Level")));
+                        await e.Channel.SendMessage($"{e.GetArg("Person")} set to level {int.Parse(e.GetArg("Level"))}");
                     }
                     catch (Exception ex)
                     {
@@ -1154,16 +1154,13 @@ namespace DiscordBot
                 .Description("Spawn an item in your inventory. (testing only!)")
                 .Parameter("Item", ParameterType.Required)
                 .Parameter("Amount", ParameterType.Required)
+                .AddCheck((command, user, channel) => user.Id == 140470317440040960)
                 .Hide()
                 .Do(async e =>
                 {
                     try
                     {
-                        if (e.Message.User.Id == 140470317440040960)
-                        {
-                            
-                            await e.Channel.SendMessage(e.Message.User.Nickname + await Data.RPGDataHelper.SpawnItem(e.Message.User.Id, long.Parse(e.GetArg("Item")), int.Parse(e.GetArg("Amount"))));
-                        }
+                        await e.Channel.SendMessage(e.Message.User.Nickname + await Data.RPGDataHelper.SpawnItem(e.Message.User.Id, long.Parse(e.GetArg("Item")), int.Parse(e.GetArg("Amount"))));
                     }
                     catch (Exception ex)
                     {
@@ -1171,16 +1168,36 @@ namespace DiscordBot
                     }
                 });
 
+            _client.GetService<CommandService>().CreateCommand("pause")
+                .Description("The bot will stop responding to commands untill unpaused.")
+                .AddCheck((command, user, channel) => user.Id == 140470317440040960)
+                .AddCheck((command, user, channel) => !paused)
+                .Hide()
+                .Do(async e =>
+                {
+                    paused = true;
+                    await e.Channel.SendMessage("The bot has been paused and will stop responding to commands!");
+                });
+            
+            _client.GetService<CommandService>().CreateCommand("unpause")
+                .Description("The bot will respond to commands again.")
+                .AddCheck((command, user, channel) => user.Id == 140470317440040960)
+                .AddCheck((command, user, channel) => paused)
+                .Hide()
+                .Do(async e =>
+                {
+                    paused = false;
+                    await e.Channel.SendMessage("The bot has been unpaused and will respond to commands again.");
+                });
+
             _client.GetService<CommandService>().CreateCommand("stop")
-                .Description("stop the program")
+                .Description("Stop the program")
+                .AddCheck((command, user, channel) => user.Id == 140470317440040960)
                 .Hide()
                 .Do(e =>
                 {
-                    if (e.Message.User.Id == 140470317440040960)
-                    {
-                        Thread.Sleep(1000);
-                        Environment.Exit(0);
-                    }
+                    Thread.Sleep(1000);
+                    Environment.Exit(0);
                 });
             #endregion
         }
