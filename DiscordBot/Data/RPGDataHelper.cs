@@ -678,7 +678,7 @@ namespace DiscordBot.Data
         }
         #endregion
 
-        internal async static Task<Tuple<List<InventoryItem>, int, int>> GetInventory(long userId, int page)
+        internal async static Task<Tuple<List<InventoryItem>, int, int>> GetInventory(long userId, int page, Channel c)
         {
             List<InventoryItem> inventory = new List<InventoryItem>();
             int pageCount = 0;
@@ -689,6 +689,7 @@ namespace DiscordBot.Data
                 {
                     using (SqlCommand cmd = conn.CreateCommand())
                     {
+                        c.SendMessage("test3");
                         string command = "select {0} from (" +
                                          "select Items.ItemID, Items.Name, Items.Type, " +
                                          "case when Inventory.ItemID in (" +
@@ -709,7 +710,7 @@ namespace DiscordBot.Data
                                          "union " +
                                          "select WeaponID as ItemID from equipped " +
                                          ") x " +
-                                         "where x.ItemID <> 0 and UserID = @id) " +
+                                         "where x.ItemID <> 0 and UserID = @user) " +
                                          "then Inventory.Amount - 1 else Inventory.Amount end as Amount " +
                                          "from Inventory inner join Items on Items.ItemID = Inventory.ItemID " +
                                          "where UserID = @user) " +

@@ -132,9 +132,7 @@ namespace DiscordBot.Controllers
 
             await c.SendMessage("test2");
 
-            Tuple<List<InventoryItem>, int, int> result = await RPGDataHelper.GetInventory(userId, page);
-
-            await c.SendMessage("test2");
+            Tuple<List<InventoryItem>, int, int> result = await RPGDataHelper.GetInventory(userId, page, c);
 
             string header = $"+------ {Helper.getDiscordDisplayName(user)}'s Inventory (Page {result.Item2}/{result.Item3}) ------+" + Environment.NewLine;
 
