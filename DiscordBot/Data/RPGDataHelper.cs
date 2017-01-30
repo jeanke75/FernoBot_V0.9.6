@@ -11,11 +11,6 @@ namespace DiscordBot.Data
 {
     static class RPGDataHelper
     {
-        /*private static SqlConnection getConnection()
-        {
-            return new SqlConnection("Data Source=RPG.sqlite;Version=3;");
-        }*/
-
         #region Cooldowns
         internal async static Task<DateTime> GetTimeCommandUsed(long userId, string command)
         {
@@ -327,14 +322,14 @@ namespace DiscordBot.Data
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
                             await reader.ReadAsync();
-                            weaponId = (int)reader["WeaponID"];
-                            helmetId = (int)reader["HelmetID"];
-                            upperId = (int)reader["UpperID"];
-                            pantsId = (int)reader["PantsID"];
-                            bootsId = (int)reader["BootsID"];
-                            gauntletsId = (int)reader["GloveID"];
-                            mantleId = (int)reader["MantleID"];
-                            shieldId = (int)reader["ShieldID"];
+                            weaponId = (reader["WeaponID"] != null ? (int)reader["WeaponID"] : 0);
+                            helmetId = (reader["HelmetID"] != null ? (int)reader["HelmetID"] : 0);
+                            upperId = (reader["UpperID"] != null ? (int)reader["UpperID"] : 0);
+                            pantsId = (reader["PantsID"] != null ? (int)reader["PantsID"] : 0);
+                            bootsId = (reader["BootsID"] != null ? (int)reader["BootsID"] : 0);
+                            gauntletsId = (reader["GloveID"] != null ? (int)reader["GloveID"] : 0);
+                            mantleId = (reader["MantleID"] != null ? (int)reader["MantleID"] : 0);
+                            shieldId = (reader["ShieldID"] != null ? (int)reader["ShieldID"] : 0);
                             reader.Close();
                         }
                     }

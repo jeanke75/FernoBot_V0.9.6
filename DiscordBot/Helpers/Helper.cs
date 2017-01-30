@@ -92,6 +92,11 @@ namespace DiscordBot.Helpers
             return datetime.ToString("yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture);
         }
 
+        /*private static SqlConnection getConnection()
+        {
+            return new SqlConnection("Data Source=RPG.sqlite;Version=3;");
+        }*/
+
         internal static SqlConnection getConnection()
         {
             Uri uri = new Uri(ConfigurationManager.AppSettings["SQLSERVER_URI"]);
