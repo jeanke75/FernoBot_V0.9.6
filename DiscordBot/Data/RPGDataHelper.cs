@@ -144,10 +144,12 @@ namespace DiscordBot.Data
                             cmd.CommandText = "insert into Stats (UserID, Health, Level, Experience, Strength, Dexterity, Stamina, Luck, Gold) " +
                                               "values (@user, 72, 1, 0, 0, 0, 0, 0, 0)";
                             await cmd.ExecuteNonQueryAsync();
+                            
                             /*
                             // give weapon
                             cmd.CommandText = "insert into Inventory (UserID, ItemID, Amount) values (@user, {0}, 1)", 2);
                             await cmd.ExecuteNonQueryAsync();
+
                             // give helmet
                             cmd.CommandText = string.Format("insert into Inventory (UserID, ItemID, Amount) " +
                                                             "values (@user, {0}, 1)", 13);
@@ -167,7 +169,7 @@ namespace DiscordBot.Data
                             // give gauntlets
                             cmd.CommandText = string.Format("insert into Inventory (User, ItemID, Amount) " +
                                                             "values (@user, {0}, 1)", 53);
-                            await cmd.ExecuteNonQueryAsync();
+                            await cmd.ExecuteNonQueryAsync();*/
 
                             // equip gear
                             cmd.CommandText = "insert into Equipped (User, HelmetID, UpperID, PantsID, BootsID, GloveID, MantleID, ShieldID, WeaponID) " +
@@ -178,7 +180,7 @@ namespace DiscordBot.Data
                             cmd.Parameters.Add("@DateTime", DbType.DateTime).Value = new DateTime(2000, 1, 1, 0, 0, 0);
                             cmd.CommandText = "insert into Cooldowns(User, Start, Stats, Assign, Inventory, Equip, Donate, Info, Shop, Attack, Heal, Craft) " +
                                               "values (@user, @DateTime, @DateTime, @DateTime, @DateTime, @DateTime, @DateTime, @DateTime, @DateTime, @DateTime, @DateTime, @DateTime)";//, Helper.DateTimeToString(new DateTime(2000, 1, 1, 0, 0, 0)));
-                            await cmd.ExecuteNonQueryAsync();*/
+                            await cmd.ExecuteNonQueryAsync();
                         }
                         tr.Commit();
                     }
