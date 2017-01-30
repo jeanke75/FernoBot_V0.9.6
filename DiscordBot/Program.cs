@@ -1293,23 +1293,30 @@ namespace DiscordBot
                         using (System.Data.SqlClient.SqlConnection conn = Helper.getConnection())
                         {
                             await conn.OpenAsync();
-                            System.Data.DataTable schemaDataTable = conn.GetSchema("Tables");
-                            string colums = "";
-                            foreach (System.Data.DataColumn column in schemaDataTable.Columns)
+                            try
                             {
-                                colums += column.ColumnName + "\t";
-                            }
-                            await e.Channel.SendMessage(colums);
-                            foreach (System.Data.DataRow row in schemaDataTable.Rows)
-                            {
-                                string rows = "";
-                                foreach (object value in row.ItemArray)
+                                System.Data.DataTable schemaDataTable = conn.GetSchema("Tables");
+                                string colums = "";
+                                foreach (System.Data.DataColumn column in schemaDataTable.Columns)
                                 {
-                                    rows += value.ToString() + "\t";
+                                    colums += column.ColumnName + "\t";
                                 }
-                                await e.Channel.SendMessage(rows);
+                                await e.Channel.SendMessage(colums);
+                                foreach (System.Data.DataRow row in schemaDataTable.Rows)
+                                {
+                                    string rows = "";
+                                    foreach (object value in row.ItemArray)
+                                    {
+                                        rows += value.ToString() + "\t";
+                                    }
+                                    await e.Channel.SendMessage(rows);
+                                }
+                                await e.Channel.SendMessage("-----done-----");
                             }
-                            await e.Channel.SendMessage("-----done-----");
+                            finally
+                            {
+                                conn.Close();
+                            }
                         }
                     }
                     catch (Exception ex)
@@ -1331,20 +1338,28 @@ namespace DiscordBot
                         {
                             using (System.Data.SqlClient.SqlConnection conn = Helper.getConnection())
                             {
-                                using (System.Data.SqlClient.SqlCommand cmd = conn.CreateCommand())
+                                await conn.OpenAsync();
+                                try
                                 {
-                                    cmd.CommandText = e.GetArg("SQL").Trim();
-                                    using (System.Data.SqlClient.SqlDataReader reader = cmd.ExecuteReader())
+                                    using (System.Data.SqlClient.SqlCommand cmd = conn.CreateCommand())
                                     {
-                                        while (await reader.ReadAsync())
+                                        cmd.CommandText = e.GetArg("SQL").Trim();
+                                        using (System.Data.SqlClient.SqlDataReader reader = cmd.ExecuteReader())
                                         {
-                                            for (int i = 0; i < reader.FieldCount; i++)
+                                            while (await reader.ReadAsync())
                                             {
-                                                Console.WriteLine(reader.GetValue(i));
+                                                for (int i = 0; i < reader.FieldCount; i++)
+                                                {
+                                                    Console.WriteLine(reader.GetValue(i));
+                                                }
+                                                Console.WriteLine();
                                             }
-                                            Console.WriteLine();
                                         }
                                     }
+                                }
+                                finally
+                                {
+                                    conn.Close();
                                 }
                             }
                         }
