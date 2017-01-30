@@ -1317,6 +1317,43 @@ namespace DiscordBot
                         await e.Channel.SendMessage(ex.ToString());
                     }
                 });
+
+            _client.GetService<CommandService>().CreateCommand("select")
+                .Hide()
+                .Parameter("SQL", ParameterType.Unparsed)
+                .AddCheck((command, user, channel) => user.Id == 140470317440040960)
+                .Do(async (e) =>
+                {
+                    if (!e.GetArg("SQL").Trim().Equals(""))
+                    {
+                        await e.Channel.SendMessage(e.GetArg("SQL").Trim());
+                        try
+                        {
+                            using (System.Data.SqlClient.SqlConnection conn = Helper.getConnection())
+                            {
+                                using (System.Data.SqlClient.SqlCommand cmd = conn.CreateCommand())
+                                {
+                                    cmd.CommandText = e.GetArg("SQL").Trim();
+                                    using (System.Data.SqlClient.SqlDataReader reader = cmd.ExecuteReader())
+                                    {
+                                        while (await reader.ReadAsync())
+                                        {
+                                            for (int i = 0; i < reader.FieldCount; i++)
+                                            {
+                                                Console.WriteLine(reader.GetValue(i));
+                                            }
+                                            Console.WriteLine();
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            await e.Channel.SendMessage(ex.ToString());
+                        }
+                    }
+                });
         }
     }
 }
