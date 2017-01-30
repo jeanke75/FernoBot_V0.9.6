@@ -322,7 +322,7 @@ namespace DiscordBot.Data
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
                             await reader.ReadAsync();
-                            weaponId = reader["WeaponID"] as int? ?? 0;
+                            weaponId = (int?)reader["WeaponID"] ?? 0;
                             helmetId = reader["HelmetID"] as int? ?? 0;
                             upperId = reader["UpperID"] as int? ?? 0;
                             pantsId = reader["PantsID"] as int? ?? 0;
