@@ -27,14 +27,14 @@ namespace DiscordBot.Data
                 {
                     using (SqlCommand cmd = conn.CreateCommand())
                     {
-                        cmd.CommandText = string.Format("select {0} from Cooldowns where UserID = @user", command);
+                        cmd.CommandText = string.Format("select Cooldowns.{0} from Cooldowns where UserID = @user", command);
                         cmd.Parameters.Add("@user", DbType.Int64).Value = userId;
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
                             if (reader.HasRows)
                             {
                                 await reader.ReadAsync();
-                                lastUse = Helper.StringToDateTime((string)reader[command]);
+                                lastUse = (DateTime)reader[command];
                             }
                             reader.Close();
                         }
@@ -61,7 +61,7 @@ namespace DiscordBot.Data
                         {
                             cmd.Transaction = tr;
 
-                            cmd.CommandText = string.Format("Update Cooldowns set {0} = {1} where UserID = @user", command, /*Helper.DateTimeToString(*/DateTime.Now/*)*/);
+                            cmd.CommandText = string.Format("Update Cooldowns set {0} = sysdate where UserID = @user", command);
                             cmd.Parameters.Add("@user", DbType.Int64).Value = userId;
                             await cmd.ExecuteNonQueryAsync();
                         }

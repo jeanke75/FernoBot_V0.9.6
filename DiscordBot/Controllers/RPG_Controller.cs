@@ -16,6 +16,8 @@ namespace DiscordBot.Controllers
         internal async static Task<int> GetCooldown(User user, string command, int cooldown)
         {
             long userId = await RPGDataHelper.GetUserID(user.Id);
+            if (userId == 0) return 0;
+
             TimeSpan ts = DateTime.Now - await RPGDataHelper.GetTimeCommandUsed(userId, command);
             if (ts.TotalSeconds > cooldown)
             {
