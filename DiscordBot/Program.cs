@@ -1348,14 +1348,17 @@ namespace DiscordBot
                                         {
                                             while (await reader.ReadAsync())
                                             {
+                                                string row = "";
                                                 for (int i = 0; i < reader.FieldCount; i++)
                                                 {
-                                                    Console.WriteLine(reader.GetValue(i));
+                                                    row += reader.GetValue(i) + " ";
                                                 }
-                                                Console.WriteLine();
+
+                                                await e.Channel.SendMessage(row);
                                             }
                                         }
                                     }
+                                    await e.Channel.SendMessage("-----done-----");
                                 }
                                 finally
                                 {
