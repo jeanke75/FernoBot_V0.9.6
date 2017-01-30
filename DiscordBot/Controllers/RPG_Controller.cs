@@ -15,7 +15,7 @@ namespace DiscordBot.Controllers
         #region Cooldowns
         internal async static Task<int> GetCooldown(User user, string command, int cooldown)
         {
-            long userId = await RPGDataHelper.GetUserID(user.Id);
+            /*long userId = await RPGDataHelper.GetUserID(user.Id);
             if (userId == 0) return 0;
 
             TimeSpan ts = DateTime.Now - await RPGDataHelper.GetTimeCommandUsed(userId, command);
@@ -26,13 +26,14 @@ namespace DiscordBot.Controllers
             else
             {
                 return (int)Math.Abs(Math.Round(ts.TotalSeconds) - cooldown);
-            }
+            }*/
+            return 0;
         }
 
         internal async static Task SetCooldown(User user, string command)
         {
             long userId = await RPGDataHelper.GetUserID(user.Id);
-            await RPGDataHelper.SetTimeCommandUsed(userId, command);
+            //await RPGDataHelper.SetTimeCommandUsed(userId, command);
         }
         #endregion
 
