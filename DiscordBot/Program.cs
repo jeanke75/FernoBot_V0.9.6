@@ -517,6 +517,7 @@ namespace DiscordBot
                 {
                     try
                     {
+                        await e.Channel.SendMessage("test");
                         int cd = await RPG_Controller.GetCooldown(e.Message.User, "inventory", 15);
                         if (cd > 0)
                         {
