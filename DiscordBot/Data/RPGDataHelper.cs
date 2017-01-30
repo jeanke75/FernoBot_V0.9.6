@@ -17,7 +17,7 @@ namespace DiscordBot.Data
         }*/
 
         #region Cooldowns
-        internal async static Task<DateTime> GetTimeCommandUsed(ulong id, string command)
+        internal async static Task<DateTime> GetTimeCommandUsed(long userId, string command)
         {
             DateTime lastUse = new DateTime(0);
             using (SqlConnection conn = Helper.getConnection())
@@ -27,8 +27,8 @@ namespace DiscordBot.Data
                 {
                     using (SqlCommand cmd = conn.CreateCommand())
                     {
-                        cmd.CommandText = string.Format("select {0} from Cooldowns where User = @user", command);
-                        cmd.Parameters.Add("@user", DbType.UInt64).Value = id;
+                        cmd.CommandText = string.Format("select {0} from Cooldowns where UserID = @user", command);
+                        cmd.Parameters.Add("@user", DbType.Int64).Value = userId;
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
                             if (reader.HasRows)
@@ -48,7 +48,7 @@ namespace DiscordBot.Data
             return lastUse;
         }
 
-        internal async static Task SetTimeCommandUsed(ulong id, string command)
+        internal async static Task SetTimeCommandUsed(long userId, string command)
         {
             using (SqlConnection conn = Helper.getConnection())
             {
@@ -61,8 +61,8 @@ namespace DiscordBot.Data
                         {
                             cmd.Transaction = tr;
 
-                            cmd.CommandText = string.Format("Update Cooldowns set {0} = {1} where User = @user", command, Helper.DateTimeToString(DateTime.Now));
-                            cmd.Parameters.Add("@user", DbType.UInt64).Value = id;
+                            cmd.CommandText = string.Format("Update Cooldowns set {0} = {1} where UserID = @user", command, /*Helper.DateTimeToString(*/DateTime.Now/*)*/);
+                            cmd.Parameters.Add("@user", DbType.Int64).Value = userId;
                             await cmd.ExecuteNonQueryAsync();
                         }
                         tr.Commit();
@@ -81,9 +81,9 @@ namespace DiscordBot.Data
         }
         #endregion
 
-        internal async static Task<bool> UserStartedAdventure(ulong userId)
+        internal async static Task<long> GetUserID(ulong discordId)
         {
-            bool status = true;
+            long userId = 0;
             using (SqlConnection conn = Helper.getConnection())
             {
                 await conn.OpenAsync();
@@ -91,11 +91,15 @@ namespace DiscordBot.Data
                 {
                     using (SqlCommand cmd = conn.CreateCommand())
                     {
-                        cmd.Parameters.Add("@DiscordID", DbType.Int64).Value = userId;
-                        cmd.CommandText = "select 1 from Users where DiscordID = @DiscordID";
+                        cmd.Parameters.Add("@DiscordID", DbType.String).Value = discordId.ToString();
+                        cmd.CommandText = "select UserID from Users where DiscordID = @DiscordID";
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
-                            if (!reader.HasRows) status = false;
+                            if (reader.HasRows)
+                            {
+                                await reader.ReadAsync();
+                                userId = (long)reader["UserID"];
+                            }
                             reader.Close();
                         }
                     }
@@ -105,7 +109,7 @@ namespace DiscordBot.Data
                     conn.Close();
                 }
             }
-            return status;
+            return userId;
         }
 
         internal async static Task Create(ulong discordId)
@@ -120,14 +124,14 @@ namespace DiscordBot.Data
                         using (SqlCommand cmd = conn.CreateCommand())
                         {
                             cmd.Transaction = tr;
-                            cmd.Parameters.Add("@DiscordID", DbType.Decimal).Value = discordId;
+                            cmd.Parameters.Add("@discord", DbType.String).Value = discordId.ToString();
                             // add user to the database
-                            cmd.CommandText = "insert into Users(DiscordID) values (@DiscordID)";
+                            cmd.CommandText = "insert into Users(DiscordID) values (@discord)";
                             await cmd.ExecuteNonQueryAsync();
 
                             // retrieve userid
                             long userId = 0;
-                            cmd.CommandText = "select UserID from Users where DiscordID = @DiscordID";
+                            cmd.CommandText = "select UserID from Users where DiscordID = @discord";
                             using (SqlDataReader reader = cmd.ExecuteReader())
                             {
                                 await reader.ReadAsync();
@@ -136,44 +140,44 @@ namespace DiscordBot.Data
                             }
 
                             // create character stats
-                            cmd.Parameters.Add("@UserID", DbType.UInt64).Value = userId;
+                            cmd.Parameters.Add("@user", DbType.Int64).Value = userId;
                             cmd.CommandText = "insert into Stats (UserID, Health, Level, Experience, Strength, Dexterity, Stamina, Luck, Gold) " +
-                                              "values (@UserID, 72, 1, 0, 0, 0, 0, 0, 0)";
+                                              "values (@user, 72, 1, 0, 0, 0, 0, 0, 0)";
                             await cmd.ExecuteNonQueryAsync();
                             /*
                             // give weapon
-                            cmd.CommandText = "insert into Inventory (UserID, ItemID, Amount) values (@UserID, {1}, {2})", discordId, 2, 1);
+                            cmd.CommandText = "insert into Inventory (UserID, ItemID, Amount) values (@user, {0}, 1)", 2);
                             await cmd.ExecuteNonQueryAsync();
                             // give helmet
-                            cmd.CommandText = string.Format("insert into Inventory (User, ItemID, Amount) " +
-                                                            "values ({0}, {1}, {2})", discordId, 13, 1);
+                            cmd.CommandText = string.Format("insert into Inventory (UserID, ItemID, Amount) " +
+                                                            "values (@user, {0}, 1)", 13);
                             await cmd.ExecuteNonQueryAsync();
                             // give upper
                             cmd.CommandText = string.Format("insert into Inventory (User, ItemID, Amount) " +
-                                                            "values ({0}, {1}, {2})", discordId, 23, 1);
+                                                            "values (@user, {0}, 1)", 23);
                             await cmd.ExecuteNonQueryAsync();
                             // give pants
                             cmd.CommandText = string.Format("insert into Inventory (User, ItemID, Amount) " +
-                                                            "values ({0}, {1}, {2})", discordId, 33, 1);
+                                                            "values (@user, {0}, 1)", 33);
                             await cmd.ExecuteNonQueryAsync();
                             //give boots
                             cmd.CommandText = string.Format("insert into Inventory (User, ItemID, Amount) " +
-                                                            "values ({0}, {1}, {2})", discordId, 43, 1);
+                                                            "values (@user, {0}, 1)", 43);
                             await cmd.ExecuteNonQueryAsync();
                             // give gauntlets
                             cmd.CommandText = string.Format("insert into Inventory (User, ItemID, Amount) " +
-                                                            "values ({0}, {1}, {2})", discordId, 53, 1);
+                                                            "values (@user, {0}, 1)", 53);
                             await cmd.ExecuteNonQueryAsync();
 
                             // equip gear
                             cmd.CommandText = "insert into Equipped (User, HelmetID, UpperID, PantsID, BootsID, GloveID, MantleID, ShieldID, WeaponID) " +
-                                              "values (@UserID, null, null, null, null, null, null, null, null)"; //, discordId, 13, 23, 33, 43, 53, 0, 0, 2);
+                                              "values (@user, null, null, null, null, null, null, null, null)"; // 13, 23, 33, 43, 53, 0, 0, 2);
                             await cmd.ExecuteNonQueryAsync();
 
                             //create cooldowns
                             cmd.Parameters.Add("@DateTime", DbType.DateTime).Value = new DateTime(2000, 1, 1, 0, 0, 0);
                             cmd.CommandText = "insert into Cooldowns(User, Start, Stats, Assign, Inventory, Equip, Donate, Info, Shop, Attack, Heal, Craft) " +
-                                              "values (@UserID, @DateTime, @DateTime, @DateTime, @DateTime, @DateTime, @DateTime, @DateTime, @DateTime, @DateTime, @DateTime, @DateTime)";//, Helper.DateTimeToString(new DateTime(2000, 1, 1, 0, 0, 0)));
+                                              "values (@user, @DateTime, @DateTime, @DateTime, @DateTime, @DateTime, @DateTime, @DateTime, @DateTime, @DateTime, @DateTime, @DateTime)";//, Helper.DateTimeToString(new DateTime(2000, 1, 1, 0, 0, 0)));
                             await cmd.ExecuteNonQueryAsync();*/
                         }
                         tr.Commit();
@@ -191,33 +195,33 @@ namespace DiscordBot.Data
             }
         }
 
-        internal async static Task EquipItem(ulong userId, long itemId, string itemType)
+        internal async static Task EquipItem(ulong userId, long itemId, char itemType)
         {
             string type = "";
             switch (itemType)
             {
-                case "W":
+                case 'W':
                     type = "WeaponID";
                     break;
-                case "H":
+                case 'H':
                     type = "HelmetID";
                     break;
-                case "U":
+                case 'U':
                     type = "UpperID";
                     break;
-                case "P":
+                case 'P':
                     type = "PantsID";
                     break;
-                case "B":
+                case 'B':
                     type = "BootsID";
                     break;
-                case "G":
+                case 'G':
                     type = "GloveID";
                     break;
-                case "M":
+                case 'M':
                     type = "MantleID";
                     break;
-                case "S":
+                case 'S':
                     type = "ShieldID";
                     break;
             }
@@ -233,7 +237,9 @@ namespace DiscordBot.Data
                         {
                             cmd.Transaction = tr;
                             
-                            cmd.CommandText = string.Format("update Equipped set {0} = {1} where user = {2}", type, itemId, userId);
+                            cmd.CommandText = string.Format("update Equipped set {0} = @item where UserID = @user", type);
+                            cmd.Parameters.Add("@user", DbType.Int64).Value = userId;
+                            cmd.Parameters.Add("@item", DbType.Int32).Value = itemId;
                             await cmd.ExecuteNonQueryAsync();
                         }
                         tr.Commit();
@@ -251,7 +257,7 @@ namespace DiscordBot.Data
             }
         }
 
-        internal async static Task UnequipItems(ulong userId, bool weapon, bool helmet, bool upper, bool pants, bool boots, bool gauntlets, bool mantle, bool shield)
+        internal async static Task UnequipItems(long userId, bool weapon, bool helmet, bool upper, bool pants, bool boots, bool gauntlets, bool mantle, bool shield)
         {
             string s = "update Equipped set ";
             if (weapon) s += "WeaponID = 0,";
@@ -275,7 +281,8 @@ namespace DiscordBot.Data
                         {
                             cmd.Transaction = tr;
 
-                            cmd.CommandText = string.Format(s + " where user = {0}", userId);
+                            cmd.CommandText = s + " where UserID = @user";
+                            cmd.Parameters.Add("@user", DbType.Int64).Value = userId;
                             await cmd.ExecuteNonQueryAsync();
                         }
                         tr.Commit();
@@ -293,7 +300,7 @@ namespace DiscordBot.Data
             }
         }
 
-        internal async static Task<Stats> GetUserInfo(User user)
+        internal async static Task<Stats> GetUserInfo(long userId, User user)
         {
             Stats stats;
             using (SqlConnection conn = Helper.getConnection())
@@ -313,8 +320,8 @@ namespace DiscordBot.Data
                     // retrieve equipped item Ids
                     using (SqlCommand cmd = conn.CreateCommand())
                     {
-                        cmd.CommandText = "select * from Equipped where User = @id";
-                        cmd.Parameters.Add("@id", DbType.UInt64).Value = user.Id;
+                        cmd.CommandText = "select * from Equipped where UserID = @user";
+                        cmd.Parameters.Add("@user", DbType.Int64).Value = userId;
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
                             await reader.ReadAsync();
@@ -335,7 +342,8 @@ namespace DiscordBot.Data
                     {
                         using (SqlCommand cmd = conn.CreateCommand())
                         {
-                            cmd.CommandText = string.Format("select * from WeaponsView where ID = {0}", weaponId);
+                            cmd.CommandText = "select * from WeaponsView where ItemID = @item";
+                            cmd.Parameters.Add("@item", DbType.Int32).Value = weaponId;
                             using (SqlDataReader reader = cmd.ExecuteReader())
                             {
                                 if (reader.HasRows)
@@ -353,7 +361,8 @@ namespace DiscordBot.Data
                     {
                         using (SqlCommand cmd = conn.CreateCommand())
                         {
-                            cmd.CommandText = string.Format("select * from ArmorsView where ID = {0}", helmetId);
+                            cmd.CommandText = "select * from ArmorsView where ItemID = @item";
+                            cmd.Parameters.Add("@item", DbType.Int32).Value = helmetId;
                             using (SqlDataReader reader = cmd.ExecuteReader())
                             {
                                 if (reader.HasRows)
@@ -371,7 +380,8 @@ namespace DiscordBot.Data
                     {
                         using (SqlCommand cmd = conn.CreateCommand())
                         {
-                            cmd.CommandText = string.Format("select * from ArmorsView where ID = {0}", upperId);
+                            cmd.CommandText = "select * from ArmorsView where ItemID = @item";
+                            cmd.Parameters.Add("@item", DbType.Int32).Value = upperId;
                             using (SqlDataReader reader = cmd.ExecuteReader())
                             {
                                 if (reader.HasRows)
@@ -389,7 +399,8 @@ namespace DiscordBot.Data
                     {
                         using (SqlCommand cmd = conn.CreateCommand())
                         {
-                            cmd.CommandText = string.Format("select * from ArmorsView where ID = {0}", pantsId);
+                            cmd.CommandText = "select * from ArmorsView where ItemID = @item";
+                            cmd.Parameters.Add("@item", DbType.Int32).Value = pantsId;
                             using (SqlDataReader reader = cmd.ExecuteReader())
                             {
                                 if (reader.HasRows)
@@ -407,7 +418,8 @@ namespace DiscordBot.Data
                     {
                         using (SqlCommand cmd = conn.CreateCommand())
                         {
-                            cmd.CommandText = string.Format("select * from ArmorsView where ID = {0}", bootsId);
+                            cmd.CommandText = "select * from ArmorsView where ItemID = @item";
+                            cmd.Parameters.Add("@item", DbType.Int32).Value = bootsId;
                             using (SqlDataReader reader = cmd.ExecuteReader())
                             {
                                 if (reader.HasRows)
@@ -425,7 +437,8 @@ namespace DiscordBot.Data
                     {
                         using (SqlCommand cmd = conn.CreateCommand())
                         {
-                            cmd.CommandText = string.Format("select * from ArmorsView where ID = {0}", gauntletsId);
+                            cmd.CommandText = "select * from ArmorsView where ItemID = @item";
+                            cmd.Parameters.Add("@item", DbType.Int32).Value = gauntletsId;
                             using (SqlDataReader reader = cmd.ExecuteReader())
                             {
                                 if (reader.HasRows)
@@ -443,7 +456,8 @@ namespace DiscordBot.Data
                     {
                         using (SqlCommand cmd = conn.CreateCommand())
                         {
-                            cmd.CommandText = string.Format("select * from ArmorsView where ID = {0}", mantleId);
+                            cmd.CommandText = "select * from ArmorsView where ItemID = @item";
+                            cmd.Parameters.Add("@item", DbType.Int32).Value = mantleId;
                             using (SqlDataReader reader = cmd.ExecuteReader())
                             {
                                 if (reader.HasRows)
@@ -461,7 +475,8 @@ namespace DiscordBot.Data
                     {
                         using (SqlCommand cmd = conn.CreateCommand())
                         {
-                            cmd.CommandText = string.Format("select * from ArmorsView where ID = {0}", shieldId);
+                            cmd.CommandText = "select * from ArmorsView where ItemID = @item";
+                            cmd.Parameters.Add("@item", DbType.Int32).Value = shieldId;
                             using (SqlDataReader reader = cmd.ExecuteReader())
                             {
                                 if (reader.HasRows)
@@ -478,21 +493,21 @@ namespace DiscordBot.Data
 
                     using (SqlCommand cmd = conn.CreateCommand())
                     {
-                        cmd.CommandText = "select * from Stats where User = @id";
-                        cmd.Parameters.Add("@id", DbType.UInt64).Value = user.Id;
+                        cmd.CommandText = "select * from Stats where UserID = @user";
+                        cmd.Parameters.Add("@user", DbType.Int64).Value = userId;
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
                             await reader.ReadAsync();
                             stats = new Stats(user,
-                                                  (int)reader["Level"],
-                                                  (int)reader["Strength"],
-                                                  (int)reader["Dexterity"],
-                                                  (int)reader["Stamina"],
-                                                  (int)reader["Luck"],
-                                                  (int)reader["Health"],
-                                                  (int)reader["Experience"],
-                                                  (int)reader["Gold"],
-                                                  equipment);
+                                              (byte)reader["Level"],
+                                              (short)reader["Strength"],
+                                              (short)reader["Dexterity"],
+                                              (short)reader["Stamina"],
+                                              (short)reader["Luck"],
+                                              (short)reader["Health"],
+                                              (int)reader["Experience"],
+                                              (long)reader["Gold"],
+                                              equipment);
                             reader.Close();
                         }
                     }
@@ -506,9 +521,9 @@ namespace DiscordBot.Data
         }
 
         #region assign attributes
-        internal async static Task<int> GetUnusedAttributePoints(ulong userId)
+        internal async static Task<short> GetUnusedAttributePoints(long userId)
         {
-            int unusedAttributes = 0;
+            short unusedAttributes = 0;
             using (SqlConnection conn = Helper.getConnection())
             {
                 await conn.OpenAsync();
@@ -516,14 +531,15 @@ namespace DiscordBot.Data
                 {
                     using (SqlCommand cmd = conn.CreateCommand())
                     {
-                        cmd.CommandText = string.Format("select Level, Strength, Dexterity, Stamina, Luck from Stats where User = {0}", userId);
+                        cmd.CommandText = "select Level, Strength, Dexterity, Stamina, Luck from Stats where UserID = @user";
+                        cmd.Parameters.Add("@user", DbType.Int64).Value = userId;
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
                             await reader.ReadAsync();
-                            int level = (int)reader["Level"];
-                            int usedAttributes = (int)reader["Strength"] + (int)reader["Dexterity"] + (int)reader["Stamina"] + (int)reader["Luck"];
+                            byte level = (byte)reader["Level"];
+                            int usedAttributes = (short)reader["Strength"] + (short)reader["Dexterity"] + (short)reader["Stamina"] + (short)reader["Luck"];
                             int totalAttributes = (level - 1) * 3 + (int)Math.Floor(level * 0.2) * 2;
-                            unusedAttributes = totalAttributes - usedAttributes;
+                            unusedAttributes = (short)(totalAttributes - usedAttributes);
                             reader.Close();
                         }
                     }
@@ -536,7 +552,7 @@ namespace DiscordBot.Data
             return unusedAttributes;
         }
 
-        internal async static Task AssignAttributePointsToStrength(ulong userId, int pointsToAssign)
+        internal async static Task AssignAttributePointsToStrength(long userId, short pointsToAssign)
         {
             using (SqlConnection conn = Helper.getConnection())
             {
@@ -548,9 +564,9 @@ namespace DiscordBot.Data
                         using (SqlCommand cmd = conn.CreateCommand())
                         {
                             cmd.Transaction = tr;
-                            cmd.CommandText = string.Format("update Stats set " +
-                                                            "Strength = (Strength + {0}) " +
-                                                            "where User = {1}", pointsToAssign, userId);
+                            cmd.CommandText = "update Stats set Strength = (Strength + @pta) where UserID = @user";
+                            cmd.Parameters.Add("@user", DbType.Int64).Value = userId;
+                            cmd.Parameters.Add("@pta", DbType.Int16).Value = pointsToAssign;
                             await cmd.ExecuteNonQueryAsync();
                         }
                         tr.Commit();
@@ -568,7 +584,7 @@ namespace DiscordBot.Data
             }
         }
 
-        internal async static Task AssignAttributePointsToDexterity(ulong userId, int pointsToAssign)
+        internal async static Task AssignAttributePointsToDexterity(long userId, short pointsToAssign)
         {
             using (SqlConnection conn = Helper.getConnection())
             {
@@ -580,9 +596,9 @@ namespace DiscordBot.Data
                         using (SqlCommand cmd = conn.CreateCommand())
                         {
                             cmd.Transaction = tr;
-                            cmd.CommandText = string.Format("update Stats set " +
-                                                            "Dexterity = (Dexterity + {0}) " +
-                                                            "where User = {1}", pointsToAssign, userId);
+                            cmd.CommandText = "update Stats set Dexterity = (Dexterity + @pta) where UserID = @user";
+                            cmd.Parameters.Add("@user", DbType.Int64).Value = userId;
+                            cmd.Parameters.Add("@pta", DbType.Int16).Value = pointsToAssign;
                             await cmd.ExecuteNonQueryAsync();
                         }
                         tr.Commit();
@@ -600,7 +616,7 @@ namespace DiscordBot.Data
             }
         }
 
-        internal async static Task AssignAttributePointsToLuck(ulong userId, int pointsToAssign)
+        internal async static Task AssignAttributePointsToLuck(long userId, int pointsToAssign)
         {
             using (SqlConnection conn = Helper.getConnection())
             {
@@ -612,9 +628,9 @@ namespace DiscordBot.Data
                         using (SqlCommand cmd = conn.CreateCommand())
                         {
                             cmd.Transaction = tr;
-                            cmd.CommandText = string.Format("update Stats set " +
-                                                            "Luck = (Luck + {0}) " +
-                                                            "where User = {1}", pointsToAssign, userId);
+                            cmd.CommandText = "update Stats set Luck = (Luck + @pta) where UserID = @user";
+                            cmd.Parameters.Add("@user", DbType.Int64).Value = userId;
+                            cmd.Parameters.Add("@pta", DbType.Int16).Value = pointsToAssign;
                             await cmd.ExecuteNonQueryAsync();
                         }
                         tr.Commit();
@@ -632,7 +648,7 @@ namespace DiscordBot.Data
             }
         }
 
-        internal async static Task AssignAttributePointsToStamina(ulong userId, int pointsToAssign)
+        internal async static Task AssignAttributePointsToStamina(long userId, int pointsToAssign)
         {
             using (SqlConnection conn = Helper.getConnection())
             {
@@ -644,9 +660,9 @@ namespace DiscordBot.Data
                         using (SqlCommand cmd = conn.CreateCommand())
                         {
                             cmd.Transaction = tr;
-                            cmd.CommandText = string.Format("update Stats set " +
-                                                            "Stamina = (Stamina + {0}) " +
-                                                            "where User = {1}", pointsToAssign, userId);
+                            cmd.CommandText = "update Stats set Stamina = (Stamina + @pta) where UserID = @user";
+                            cmd.Parameters.Add("@user", DbType.Int64).Value = userId;
+                            cmd.Parameters.Add("@pta", DbType.Int16).Value = pointsToAssign;
                             await cmd.ExecuteNonQueryAsync();
                         }
                         tr.Commit();
@@ -665,7 +681,7 @@ namespace DiscordBot.Data
         }
         #endregion
 
-        internal async static Task<Tuple<List<InventoryItem>, int, int>> GetInventory(ulong userId, int page)
+        internal async static Task<Tuple<List<InventoryItem>, int, int>> GetInventory(long userId, int page)
         {
             List<InventoryItem> inventory = new List<InventoryItem>();
             int pageCount = 0;
@@ -677,7 +693,7 @@ namespace DiscordBot.Data
                     using (SqlCommand cmd = conn.CreateCommand())
                     {
                         string command = "select {0} from (" +
-                                         "select Items.ID, Items.Name, Items.Type, " +
+                                         "select Items.ItemID, Items.Name, Items.Type, " +
                                          "case when Inventory.ItemID in (" +
                                          "select * from (" +
                                          "select HelmetID as ItemID from equipped " +
@@ -696,15 +712,15 @@ namespace DiscordBot.Data
                                          "union " +
                                          "select WeaponID as ItemID from equipped " +
                                          ") x " +
-                                         "where x.ItemID <> 0 and user = @user) " +
+                                         "where x.ItemID <> 0 and UserID = @id) " +
                                          "then Inventory.Amount - 1 else Inventory.Amount end as Amount " +
-                                         "from Inventory inner join Items on Items.ID = Inventory.ItemID " +
-                                         "where user = @user) " +
+                                         "from Inventory inner join Items on Items.ItemID = Inventory.ItemID " +
+                                         "where UserID = @user) " +
                                          "where Amount > 0 ";
 
 
                         cmd.CommandText = string.Format(command, "CAST((count(1) / 10.0) + 0.9 as int) as Pages");
-                        cmd.Parameters.Add("@user", DbType.UInt64).Value = userId;
+                        cmd.Parameters.Add("@user", DbType.Int64).Value = userId;
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
                             if (reader.HasRows)
@@ -726,10 +742,10 @@ namespace DiscordBot.Data
                         {
                             while (await reader.ReadAsync())
                             {
-                                inventory.Add(new InventoryItem((long)reader["ID"],
+                                inventory.Add(new InventoryItem((int)reader["ItemID"],
                                                                 (string)reader["Name"],
-                                                                (string)reader["Type"],
-                                                                (long)reader["Amount"]));
+                                                                (char)reader["Type"],
+                                                                (int)reader["Amount"]));
                             }
                             reader.Close();
                         }
@@ -743,7 +759,7 @@ namespace DiscordBot.Data
             return new Tuple<List<InventoryItem>, int, int>(inventory, page, pageCount); ;
         }
 
-        internal async static Task<int> GetAmountOfItemOwned(ulong userId, ulong itemId)
+        internal async static Task<int> GetAmountOfItemOwned(long userId, int itemId)
         {
             int amount = 0;
             using (SqlConnection conn = Helper.getConnection())
@@ -753,9 +769,9 @@ namespace DiscordBot.Data
                 {
                     using (SqlCommand cmd = conn.CreateCommand())
                     {
-                        cmd.CommandText = "select Amount from Inventory where User = @userid and ItemID = @itemid";
-                        cmd.Parameters.Add("@userid", DbType.UInt64).Value = userId;
-                        cmd.Parameters.Add("@itemid", DbType.UInt64).Value = itemId;
+                        cmd.CommandText = "select Amount from Inventory where UserID = @user and ItemID = @item";
+                        cmd.Parameters.Add("@user", DbType.Int64).Value = userId;
+                        cmd.Parameters.Add("@item", DbType.Int32).Value = itemId;
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
                             if (reader.HasRows)
@@ -775,9 +791,9 @@ namespace DiscordBot.Data
             return amount;
         }
 
-        internal async static Task<int> GetGold(ulong userId)
+        internal async static Task<long> GetCurrentUserGold(long userId)
         {
-            int gold;
+            long gold;
             using (SqlConnection conn = Helper.getConnection())
             {
                 await conn.OpenAsync();
@@ -785,11 +801,12 @@ namespace DiscordBot.Data
                 {
                     using (SqlCommand cmd = conn.CreateCommand())
                     {
-                        cmd.CommandText = string.Format("select Gold from Stats where User = {0}", userId);
+                        cmd.CommandText = "select Gold from Stats where UserID = @user";
+                        cmd.Parameters.Add("@user", DbType.Int64).Value = userId;
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
                             await reader.ReadAsync();
-                            gold = (int)reader["Gold"];
+                            gold = (long)reader["Gold"];
                             reader.Close();
                         }
                     }
@@ -802,7 +819,7 @@ namespace DiscordBot.Data
             return gold;
         }
 
-        internal async static Task Donate(ulong callerId, ulong targetId, int gold)
+        internal async static Task Donate(long callerId, long targetId, long gold)
         {
             using (SqlConnection conn = Helper.getConnection())
             {
@@ -816,11 +833,11 @@ namespace DiscordBot.Data
                             cmd.Transaction = tr;
                             cmd.CommandText = string.Format("update Stats set " +
                                                             "Gold = (Gold - {0}) " +
-                                                            "where User = {1}", gold, callerId);
+                                                            "where UserID = {1}", gold, callerId);
                             await cmd.ExecuteNonQueryAsync();
                             cmd.CommandText = string.Format("update Stats set " +
                                                             "Gold = (Gold + {0}) " +
-                                                            "where User = {1}", gold, targetId);
+                                                            "where UserID = {1}", gold, targetId);
                             await cmd.ExecuteNonQueryAsync();
                         }
                         tr.Commit();
@@ -838,9 +855,9 @@ namespace DiscordBot.Data
             }
         }    
 
-        internal async static Task<Item> GetItemInfoByID(ulong id)
+        internal async static Task<Item> GetItemInfoByID(int itemId)
         {
-            if (id == 0) return null;
+            if (itemId == 0) return null;
             Item item = null;
             using (SqlConnection conn = Helper.getConnection())
             {
@@ -855,12 +872,12 @@ namespace DiscordBot.Data
                         views.Add("PotionsView");
                         views.Add("ItemsView");
 
-                        cmd.Parameters.Add("@id", DbType.UInt64).Value = id;
+                        cmd.Parameters.Add("@item", DbType.Int32).Value = itemId;
 
                         // do an exact search in each type of item
                         foreach (string view in views)
                         {
-                            cmd.CommandText = string.Format("select * from {0} where ID = @id", view);
+                            cmd.CommandText = string.Format("select * from {0} where ItemID = @item", view);
                             using (SqlDataReader reader = cmd.ExecuteReader())
                             {
                                 if (reader.HasRows)
@@ -943,7 +960,7 @@ namespace DiscordBot.Data
             return items;
         }
 
-        internal async static Task<Monster> GetMonsterInfoByID(ulong id)
+        internal async static Task<Monster> GetMonsterInfoByID(int monsterId)
         {
             Monster monster = null;
             using (SqlConnection conn = Helper.getConnection())
@@ -953,21 +970,21 @@ namespace DiscordBot.Data
                 {
                     using (SqlCommand cmd = conn.CreateCommand())
                     {
-                        cmd.CommandText = "select * from Monsters where ID = @id";
-                        cmd.Parameters.Add("@id", DbType.UInt64).Value = id;
+                        cmd.CommandText = "select * from Monsters where MonsterID = @monster";
+                        cmd.Parameters.Add("@monster", DbType.Int32).Value = monsterId;
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
                             if (reader.HasRows)
                             {
                                 await reader.ReadAsync();
-                                monster = new Monster((long)reader["ID"],
+                                monster = new Monster((int)reader["MonsterID"],
                                                       (string)reader["Name"],
                                                       (int)reader["Health"],
                                                       (int)reader["Health"],
-                                                      (int)reader["HealthRegen"],
-                                                      (int)reader["MinDef"],
-                                                      (int)reader["CritDef"],
-                                                      (int)reader["MinDmg"],
+                                                      (short)reader["HealthRegen"],
+                                                      (short)reader["MinDef"],
+                                                      (short)reader["CritDef"],
+                                                      (short)reader["MinDmg"],
                                                       (int)reader["Experience"],
                                                       (int)reader["GoldMin"],
                                                       (int)reader["GoldMax"]);
@@ -978,12 +995,12 @@ namespace DiscordBot.Data
                         if (monster != null)
                         {
                             List<Item> items = new List<Item>();
-                            cmd.CommandText = "select * from items where exists(select 1 from Drops where Drops.ItemID = items.ID and Drops.MonsterID = @id)";
+                            cmd.CommandText = "select * from items where exists(select 1 from Drops where Drops.ItemID = items.ItemID and Drops.MonsterID = @monster)";
                             using (SqlDataReader reader = cmd.ExecuteReader())
                             {
                                 while (await reader.ReadAsync())
                                 {
-                                    items.Add(new Drop((long)reader["ID"], (string)reader["name"], 0));
+                                    items.Add(new Drop((int)reader["ItemID"], (string)reader["name"], 0));
                                 }
                                 reader.Close();
                             }
@@ -1016,14 +1033,14 @@ namespace DiscordBot.Data
                         {
                             while (await reader.ReadAsync())
                             {
-                                monsters.Add(new Monster((long)reader["ID"],
+                                monsters.Add(new Monster((int)reader["MonsterID"],
                                                          (string)reader["Name"],
                                                          (int)reader["Health"],
                                                          (int)reader["Health"],
-                                                         (int)reader["HealthRegen"],
-                                                         (int)reader["MinDef"],
-                                                         (int)reader["CritDef"],
-                                                         (int)reader["MinDmg"],
+                                                         (short)reader["HealthRegen"],
+                                                         (short)reader["MinDef"],
+                                                         (short)reader["CritDef"],
+                                                         (short)reader["MinDmg"],
                                                          (int)reader["Experience"],
                                                          (int)reader["GoldMin"],
                                                          (int)reader["GoldMax"]));
@@ -1034,13 +1051,13 @@ namespace DiscordBot.Data
                         if (monsters.Count == 1)
                         {
                             List<Item> items = new List<Item>();
-                            cmd.CommandText = "select * from items where exists(select 1 from Drops where Drops.ItemID = items.ID and Drops.MonsterID = @id)";
-                            cmd.Parameters.Add("@id", DbType.Int64).Value = monsters[0].id;
+                            cmd.CommandText = "select * from items where exists(select 1 from Drops where Drops.ItemID = items.ItemID and Drops.MonsterID = @monster)";
+                            cmd.Parameters.Add("@monster", DbType.Int32).Value = monsters[0].id;
                             using (SqlDataReader reader = cmd.ExecuteReader())
                             {
                                 while (await reader.ReadAsync())
                                 {
-                                    items.Add(new Drop((long)reader["ID"], (string)reader["name"], 0));
+                                    items.Add(new Drop((int)reader["ItemID"], (string)reader["name"], 0));
                                 }
                                 reader.Close();
                             }
@@ -1090,10 +1107,10 @@ namespace DiscordBot.Data
                         {
                             while (await reader.ReadAsync())
                             {
-                                items.Add(new Item((long)reader["ID"],
+                                items.Add(new Item((int)reader["ItemID"],
                                                    (string)reader["Name"],
-                                                   (string)reader["Type"],
-                                                   (int)reader["Level"],
+                                                   (char)reader["Type"],
+                                                   (byte)reader["Level"],
                                                    (int)reader["ValueBuy"],
                                                    (int)reader["ValueSell"]));
                             }
@@ -1109,9 +1126,9 @@ namespace DiscordBot.Data
             return new Tuple<List<Item>, int, int>(items, page, pageCount);
         }
 
-        internal async static Task<Item> GetShopItemByID(ulong id)
+        internal async static Task<Item> GetShopItemByID(int itemId)
         {
-            if (id == 0) return null;
+            if (itemId == 0) return null;
             Item item = null;
             using (SqlConnection conn = Helper.getConnection())
             {
@@ -1120,16 +1137,16 @@ namespace DiscordBot.Data
                 {
                     using (SqlCommand cmd = conn.CreateCommand())
                     {
-                        cmd.CommandText = "select ID, Name, ValueBuy from Items where ID = @id and ValueBuy > 0";
-                        cmd.Parameters.Add("@id", DbType.UInt64).Value = id;
+                        cmd.CommandText = "select ItemID, Name, ValueBuy from Items where ItemID = @item and ValueBuy > 0";
+                        cmd.Parameters.Add("@item", DbType.Int32).Value = itemId;
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
                             if (reader.HasRows)
                             {
                                 await reader.ReadAsync();
-                                item = new Item((long)reader["ID"],
+                                item = new Item((int)reader["ItemID"],
                                                 (string)reader["Name"],
-                                                "I",
+                                                'I',
                                                 0,
                                                 (int)reader["ValueBuy"],
                                                 0);
@@ -1160,15 +1177,15 @@ namespace DiscordBot.Data
                         cmd.Parameters.Add("@name", DbType.String).Value = name;
 
                         // do an exact search
-                        cmd.CommandText = "select ID, Name, ValueBuy from Items where lower(Name) = lower(@name) and ValueBuy > 0";
+                        cmd.CommandText = "select ItemID, Name, ValueBuy from Items where lower(Name) = lower(@name) and ValueBuy > 0";
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
                             if (reader.HasRows)
                             {
                                 await reader.ReadAsync();
-                                items.Add(new Item((long)reader["ID"],
+                                items.Add(new Item((int)reader["ItemID"],
                                                    (string)reader["Name"],
-                                                   "I",
+                                                   'I',
                                                    0,
                                                    (int)reader["ValueBuy"],
                                                    0));
@@ -1184,9 +1201,9 @@ namespace DiscordBot.Data
                             {
                                 while (await reader.ReadAsync())
                                 {
-                                    items.Add(new Item((long)reader["ID"],
+                                    items.Add(new Item((int)reader["ItemID"],
                                                        (string)reader["Name"],
-                                                       "I",
+                                                       'I',
                                                        0,
                                                        (int)reader["ValueBuy"],
                                                        0));
@@ -1204,7 +1221,7 @@ namespace DiscordBot.Data
             return items;
         }
 
-        internal async static Task ShopBuy(ulong userId, int amount, long itemId)
+        internal async static Task ShopBuy(long userId, int amount, int itemId)
         {
             using (SqlConnection conn = Helper.getConnection())
             {
@@ -1216,24 +1233,24 @@ namespace DiscordBot.Data
                         using (SqlCommand cmd = conn.CreateCommand())
                         {
                             cmd.Transaction = tr;
-                            cmd.Parameters.Add("@user", DbType.UInt64).Value = userId;
-                            cmd.Parameters.Add("@item", DbType.Int64).Value = itemId;
-                            cmd.CommandText = string.Format("update Stats set Gold = Gold - (select (ValueBuy * {0}) from Items where ID = @item) where User = @user", amount);
+                            cmd.Parameters.Add("@user", DbType.Int64).Value = userId;
+                            cmd.Parameters.Add("@item", DbType.Int32).Value = itemId;
+                            cmd.CommandText = string.Format("update Stats set Gold = Gold - (select (ValueBuy * {0}) from Items where ItemID = @item) where UserID = @user", amount);
                             await cmd.ExecuteNonQueryAsync();
 
-                            cmd.CommandText = "select 1 from Inventory where User = @user and ItemID = @item";
+                            cmd.CommandText = "select 1 from Inventory where UserID = @user and ItemID = @item";
                             using (SqlDataReader reader = cmd.ExecuteReader())
                             {
                                 if (reader.HasRows)
                                 {
                                     reader.Close();
-                                    cmd.CommandText = string.Format("update Inventory set Amount = Amount + {0} where User = @user and ItemID = @item", amount);
+                                    cmd.CommandText = string.Format("update Inventory set Amount = Amount + {0} where UserID = @user and ItemID = @item", amount);
                                     await cmd.ExecuteNonQueryAsync();
                                 }
                                 else
                                 {
                                     reader.Close();
-                                    cmd.CommandText = string.Format("insert into Inventory (User, ItemID, Amount) values (@user, @item, {0})", amount);
+                                    cmd.CommandText = string.Format("insert into Inventory (UserID, ItemID, Amount) values (@user, @item, {0})", amount);
                                     await cmd.ExecuteNonQueryAsync();
                                 }
                             }
@@ -1254,7 +1271,7 @@ namespace DiscordBot.Data
             }
         }
 
-        internal async static Task ShopSell(ulong userId, int amount, long itemId)
+        internal async static Task ShopSell(long userId, int amount, int itemId)
         {
             using (SqlConnection conn = Helper.getConnection())
             {
@@ -1266,12 +1283,12 @@ namespace DiscordBot.Data
                         using (SqlCommand cmd = conn.CreateCommand())
                         {
                             cmd.Transaction = tr;
-                            cmd.Parameters.Add("@user", DbType.UInt64).Value = userId;
-                            cmd.Parameters.Add("@item", DbType.Int64).Value = itemId;
-                            cmd.CommandText = string.Format("update Stats set Gold = Gold + (select (ValueSell * {0}) from Items where ID = @item) where User = @user", amount);
+                            cmd.Parameters.Add("@user", DbType.Int64).Value = userId;
+                            cmd.Parameters.Add("@item", DbType.Int32).Value = itemId;
+                            cmd.CommandText = string.Format("update Stats set Gold = Gold + (select (ValueSell * {0}) from Items where ItemID = @item) where UserID = @user", amount);
                             await cmd.ExecuteNonQueryAsync();
 
-                            cmd.CommandText = "select Amount from Inventory where User = @user and ItemID = @item";
+                            cmd.CommandText = "select Amount from Inventory where UserID = @user and ItemID = @item";
                             using (SqlDataReader reader = cmd.ExecuteReader())
                             {
                                 await reader.ReadAsync();
@@ -1280,9 +1297,9 @@ namespace DiscordBot.Data
                                 if (left < 0)
                                     throw new Exceptions.RPGException("you wut @ShopSell");
                                 else if (left == 0)
-                                    cmd.CommandText = "delete from Inventory where User = @user and ItemID = @item";
+                                    cmd.CommandText = "delete from Inventory where UserID = @user and ItemID = @item";
                                 else
-                                    cmd.CommandText = string.Format("update Inventory set Amount = Amount - {0} where User = @user and ItemID = @item", amount);
+                                    cmd.CommandText = string.Format("update Inventory set Amount = Amount - {0} where UserID = @user and ItemID = @item", amount);
                                 await cmd.ExecuteNonQueryAsync();
                             }
                         }
@@ -1304,7 +1321,7 @@ namespace DiscordBot.Data
         #endregion
 
         #region Battle
-        internal async static Task<Monster> GetFight(ulong userId)
+        internal async static Task<Monster> GetFight(long userId)
         {
             Monster monster = null;
             using (SqlConnection conn = Helper.getConnection())
@@ -1314,20 +1331,21 @@ namespace DiscordBot.Data
                 {
                     using (SqlCommand cmd = conn.CreateCommand())
                     {
-                        cmd.CommandText = string.Format("select * from UserFight where User = {0}", userId);
+                        cmd.CommandText = "select * from UserFight where UserID = @user";
+                        cmd.Parameters.Add("@user", DbType.Int64).Value = userId;
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
                             if (reader.HasRows)
                             {
                                 await reader.ReadAsync();
-                                monster = new Monster((long)reader["ID"],
+                                monster = new Monster((int)reader["MonsterID"],
                                                       (string)reader["Name"],
                                                       (int)reader["CurrentHealth"],
                                                       (int)reader["Health"],
-                                                      (int)reader["HealthRegen"],
-                                                      (int)reader["MinDef"],
-                                                      (int)reader["CritDef"],
-                                                      (int)reader["MinDmg"],
+                                                      (short)reader["HealthRegen"],
+                                                      (short)reader["MinDef"],
+                                                      (short)reader["CritDef"],
+                                                      (short)reader["MinDmg"],
                                                       (int)reader["Experience"],
                                                       (int)reader["GoldMin"],
                                                       (int)reader["GoldMax"]);
@@ -1344,7 +1362,7 @@ namespace DiscordBot.Data
             return monster;
         }
 
-        internal async static Task CreateFight(User user, Monster monster)
+        internal async static Task CreateFight(long userId, Monster monster)
         {
             using (SqlConnection conn = Helper.getConnection())
             {
@@ -1356,7 +1374,10 @@ namespace DiscordBot.Data
                         using (SqlCommand cmd = conn.CreateCommand())
                         {
                             cmd.Transaction = tr;
-                            cmd.CommandText = string.Format("insert into Fight (User, MonsterId, CurrentHealth) values ({0}, {1}, {2})", user.Id, monster.id, monster.healthMax);
+                            cmd.CommandText = "insert into Fight (UserID, MonsterID, CurrentHealth) values (@user, @monster, @hpmax)";
+                            cmd.Parameters.Add("@user", DbType.Int64).Value = userId;
+                            cmd.Parameters.Add("@monster", DbType.Int32).Value = monster.id;
+                            cmd.Parameters.Add("@hpmax", DbType.Int32).Value = monster.healthMax;
                             await cmd.ExecuteNonQueryAsync();
                         }
                         tr.Commit();
@@ -1375,7 +1396,7 @@ namespace DiscordBot.Data
             }
         }
 
-        internal async static Task BattleFinished(User user, Stats player, Monster monster, List<Drop> drops)
+        internal async static Task BattleFinished(long userId, Stats player, Monster monster, List<Drop> drops)
         {
             using (SqlConnection conn = Helper.getConnection())
             {
@@ -1389,26 +1410,28 @@ namespace DiscordBot.Data
                             cmd.Transaction = tr;
                             if (monster.health <= 0 || player.health <= 0)
                             {
-                                cmd.CommandText = string.Format("delete from Fight where User = {0}", user.Id);
+                                cmd.CommandText = "delete from Fight where UserID = @user";
+                                cmd.Parameters.Add("@user", DbType.Int64).Value = userId;
                                 await cmd.ExecuteNonQueryAsync();
 
                                 if (monster.health <= 0)
                                 {
                                     foreach(Drop drop in drops)
                                     {
-                                        cmd.CommandText = string.Format("select 1 from Inventory where User = {0} and ItemID = {1}", user.Id, drop.id);
+                                        cmd.CommandText = "select 1 from Inventory where UserID = @user and ItemID = @item";
+                                        cmd.Parameters.Add("@item", DbType.Int32).Value = drop.id;
                                         using (SqlDataReader reader = cmd.ExecuteReader())
                                         {
                                             if (reader.HasRows)
                                             {
                                                 reader.Close();
-                                                cmd.CommandText = string.Format("update Inventory set Amount = Amount + {0} where User = {1} and ItemID = {2}", drop.amount, user.Id, drop.id);
+                                                cmd.CommandText = string.Format("update Inventory set Amount = Amount + {0} where UserID = @user and ItemID = @item", drop.amount);
                                                 await cmd.ExecuteNonQueryAsync();
                                             }
                                             else
                                             {
                                                 reader.Close();
-                                                cmd.CommandText = string.Format("insert into Inventory (User, ItemID, Amount) values ({0}, {1}, {2})", user.Id, drop.id, drop.amount);
+                                                cmd.CommandText = string.Format("insert into Inventory (UserID, ItemID, Amount) values (@user, @item, {0})", drop.amount);
                                                 await cmd.ExecuteNonQueryAsync();
                                             }
                                         }
@@ -1417,11 +1440,11 @@ namespace DiscordBot.Data
                             }
                             else
                             {
-                                cmd.CommandText = string.Format($"update Fight set CurrentHealth = {monster.health}, TimeLastHit = {Helper.DateTimeToString(DateTime.Now)} where User = {user.Id}");
+                                cmd.CommandText = string.Format($"update Fight set CurrentHealth = {monster.health} where UserID = {userId}");
                                 await cmd.ExecuteNonQueryAsync();
                             }
 
-                            cmd.CommandText = string.Format($"update Stats set Level = {player.level}, Health = {player.health}, Experience = {player.experience}, Gold = {player.gold} where User = {user.Id}");
+                            cmd.CommandText = string.Format($"update Stats set Level = {player.level}, Health = {player.health}, Experience = {player.experience}, Gold = {player.gold} where UserID = {userId}");
                             await cmd.ExecuteNonQueryAsync();
                             tr.Commit();
                         }
@@ -1439,7 +1462,7 @@ namespace DiscordBot.Data
             }
         }
 
-        internal async static Task<List<Drop>> GetKilledMonsterDrops(long monsterId)
+        internal async static Task<List<Drop>> GetKilledMonsterDrops(int monsterId)
         {
             List<Drop> drops = new List<Drop>();
             using (SqlConnection conn = Helper.getConnection())
@@ -1449,14 +1472,14 @@ namespace DiscordBot.Data
                 {
                     using (SqlCommand cmd = conn.CreateCommand())
                     {
-                        cmd.CommandText = string.Format("select Items.ID, Items.Name, Drops.AmountMin, Drops.AmountMax " +
-                                                        "from Drops inner join Items on Items.ID = Drops.ItemID " +
+                        cmd.CommandText = string.Format("select Items.ItemID, Items.Name, Drops.AmountMin, Drops.AmountMax " +
+                                                        "from Drops inner join Items on Items.ItemID = Drops.ItemID " +
                                                         "where MonsterID = {0} and {1} between ChanceMin and ChanceMax", monsterId, Helper.rng.Next(0,100));
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
                             while(await reader.ReadAsync())
                             {
-                                drops.Add(new Drop((long)reader["ID"],
+                                drops.Add(new Drop((int)reader["ItemID"],
                                                    (string)reader["name"],
                                                    Helper.rng.Next((int)reader["AmountMin"], (int)reader["AmountMax"])));
                             }
@@ -1473,7 +1496,7 @@ namespace DiscordBot.Data
         }
         #endregion
 
-        internal async static Task<Potion> GetBestPotionInInventory(ulong userId)
+        internal async static Task<Potion> GetBestPotionInInventory(long userId)
         {
             Potion potion = null;
             using (SqlConnection conn = Helper.getConnection())
@@ -1484,9 +1507,9 @@ namespace DiscordBot.Data
                     using (SqlCommand cmd = conn.CreateCommand())
                     {
                         cmd.CommandText = "select * from PotionsView " +
-                                          "where exists(select 1 from Inventory where ItemID = PotionsView.ID and amount > 0 and User = @user) " +
+                                          "where exists(select 1 from Inventory where ItemID = PotionsView.ID and amount > 0 and UserID = @user) " +
                                           "order by heal desc";
-                        cmd.Parameters.Add("@user", DbType.UInt64).Value = userId;
+                        cmd.Parameters.Add("@user", DbType.Int64).Value = userId;
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
                             if (reader.HasRows)
@@ -1506,7 +1529,7 @@ namespace DiscordBot.Data
             return potion;
         }
 
-        internal async static Task Heal(ulong userId, int health, long itemId)
+        internal async static Task Heal(long userId, short health, int itemId)
         {
             using (SqlConnection conn = Helper.getConnection())
             {
@@ -1518,14 +1541,14 @@ namespace DiscordBot.Data
                         using (SqlCommand cmd = conn.CreateCommand())
                         {
                             cmd.Transaction = tr;
-                            cmd.Parameters.Add("@user", DbType.UInt64).Value = userId;
-                            cmd.Parameters.Add("@health", DbType.Int32).Value = health;
-                            cmd.Parameters.Add("@item", DbType.Int64).Value = itemId;
+                            cmd.Parameters.Add("@user", DbType.Int64).Value = userId.ToString();
+                            cmd.Parameters.Add("@health", DbType.Int16).Value = health;
 
-                            cmd.CommandText = "update Stats set Health = @health where User = @user";
+                            cmd.CommandText = "update Stats set Health = @health where UserID = @user";
                             await cmd.ExecuteNonQueryAsync();
 
-                            cmd.CommandText = "select Amount from Inventory where User = @user and ItemID = @item";
+                            cmd.Parameters.Add("@item", DbType.Int32).Value = itemId;
+                            cmd.CommandText = "select Amount from Inventory where UserID = @user and ItemID = @item";
                             using (SqlDataReader reader = cmd.ExecuteReader())
                             {
                                 await reader.ReadAsync();
@@ -1534,9 +1557,9 @@ namespace DiscordBot.Data
                                 if (left < 0)
                                     throw new Exceptions.RPGException("you wut @heal");
                                 else if (left == 0)
-                                    cmd.CommandText = "delete from Inventory where User = @user and ItemID = @item";
+                                    cmd.CommandText = "delete from Inventory where UserID = @user and ItemID = @item";
                                 else
-                                    cmd.CommandText = "update Inventory set Amount = Amount - 1 where User = @user and ItemID = @item";
+                                    cmd.CommandText = "update Inventory set Amount = Amount - 1 where UserID = @user and ItemID = @item";
                                 await cmd.ExecuteNonQueryAsync();
                             }
                         }
@@ -1556,9 +1579,9 @@ namespace DiscordBot.Data
             }
         }
 
-        internal async static Task<Tuple<List<Tuple<Item, long, long>>, int, int>> GetRequirementsCraftedItem(ulong userId, long itemId)
+        internal async static Task<Tuple<List<Tuple<Item, int, int>>, int, int>> GetRequirementsCraftedItem(long userId, long itemId)
         {
-            Tuple<List<Tuple<Item, long, long>>, int, int> result = null;
+            Tuple<List<Tuple<Item, int, int>>, int, int> result = null;
             using (SqlConnection conn = Helper.getConnection())
             {
                 await conn.OpenAsync();
@@ -1570,7 +1593,7 @@ namespace DiscordBot.Data
                         int cost = 0;
 
                         cmd.CommandText = "select Cost, Chance from Upgrades where ItemID = @item";
-                        cmd.Parameters.Add("@item", DbType.Int64).Value = itemId;
+                        cmd.Parameters.Add("@item", DbType.Int32).Value = itemId;
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
                             if (reader.HasRows)
@@ -1582,11 +1605,11 @@ namespace DiscordBot.Data
                             reader.Close();
                         }
 
-                        List<Tuple<Item, long, long>> itemsNeeded = new List<Tuple<Item, long, long>>();
+                        List<Tuple<Item, int, int>> itemsNeeded = new List<Tuple<Item, int, int>>();
                         cmd.CommandText = "select UpgradeCost.NeededItemId as ID, cast(UpgradeCost.Amount as INT) as AmountNeeded, ifnull(Inv.Amount, 0) as AmountOwned, " +
                                           "Items.Name, 'I' as Type, Items.Level, Items.valueBuy, Items.ValueSell " +
                                           "from UpgradeCost " +
-                                          "left join (select User, ItemID, cast(case when exists(select 1 from(select HelmetID as ID from Equipped " +
+                                          "left join (select UserID, ItemID, cast(case when exists(select 1 from(select HelmetID as ID from Equipped " +
                                           "union " +
                                           "select UpperID as ID from Equipped " +
                                           "union " +
@@ -1602,23 +1625,23 @@ namespace DiscordBot.Data
                                           "union " +
                                           "select WeaponID as ID from Equipped) x " +
                                           "where x.ID = Inventory.ItemID) then Amount-1 else Amount end as INT) as Amount " +
-                                          "from inventory where Inventory.User = @user) Inv on Inv.ItemID = UpgradeCost.NeededItemId " +
-                                          "inner join Items on Items.ID = UpgradeCost.NeededItemId " +
+                                          "from inventory where Inventory.UserID = @user) Inv on Inv.ItemID = UpgradeCost.NeededItemId " +
+                                          "inner join Items on Items.ItemID = UpgradeCost.NeededItemId " +
                                           "where UpgradeCost.UpgradeItemId = @item";
-                        cmd.Parameters.Add("@user", DbType.UInt64).Value = userId;
+                        cmd.Parameters.Add("@user", DbType.Int64).Value = userId;
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
                             while (await reader.ReadAsync())
                             {
                                 Item item = Helper.parseItem(reader);
-                                long needed = (long)reader["AmountNeeded"];
-                                long owned = (long)reader["AmountOwned"];
-                                itemsNeeded.Add(new Tuple<Item, long, long>(item, needed, owned));
+                                int needed = (int)reader["AmountNeeded"];
+                                int owned = (int)reader["AmountOwned"];
+                                itemsNeeded.Add(new Tuple<Item, int, int>(item, needed, owned));
                             }
                             reader.Close();
                         }
 
-                        if (itemsNeeded.Count > 0) result = new Tuple<List<Tuple<Item, long, long>>, int, int>(itemsNeeded, cost, chance);
+                        if (itemsNeeded.Count > 0) result = new Tuple<List<Tuple<Item, int, int>>, int, int>(itemsNeeded, cost, chance);
                     }
                 }
                 finally
@@ -1629,7 +1652,7 @@ namespace DiscordBot.Data
             return result;
         }
 
-        internal async static Task Craft(ulong userId, long savOrbId, long itemId, bool success)
+        internal async static Task Craft(long userId, int savOrbId, int itemId, bool success)
         {
             using (SqlConnection conn = Helper.getConnection())
             {
@@ -1641,40 +1664,40 @@ namespace DiscordBot.Data
                         using (SqlCommand cmd = conn.CreateCommand())
                         {
                             cmd.Transaction = tr;
-                            cmd.Parameters.Add("@user", DbType.UInt64).Value = userId;
-                            cmd.Parameters.Add("@savorb", DbType.Int64).Value = savOrbId;
-                            cmd.Parameters.Add("@item", DbType.Int64).Value = itemId;
+                            cmd.Parameters.Add("@user", DbType.Int64).Value = userId;
+                            cmd.Parameters.Add("@savorb", DbType.Int32).Value = savOrbId;
+                            cmd.Parameters.Add("@item", DbType.Int32).Value = itemId;
 
-                            cmd.CommandText = "update Inventory set Amount = Amount - 1 where User = @user and ItemID = @savorb";
+                            cmd.CommandText = "update Inventory set Amount = Amount - 1 where UserID = @user and ItemID = @savorb";
                             await cmd.ExecuteNonQueryAsync();
 
                             cmd.CommandText = "update Inventory " +
                                               "set Amount = Amount - (select UpgradeCost.Amount " +
                                               "from UpgradeCost where UpgradeCost.NeededItemID = Inventory.ItemID and UpgradeCost.UpgradeItemID = @item) " +
-                                              "where User = @user and ItemID in (select NeededItemID from UpgradeCost where UpgradeCost.UpgradeItemID = @item)";
+                                              "where UserID = @user and ItemID in (select NeededItemID from UpgradeCost where UpgradeCost.UpgradeItemID = @item)";
                             await cmd.ExecuteNonQueryAsync();
 
-                            cmd.CommandText = "delete from Inventory where User = @user and Amount = 0";
+                            cmd.CommandText = "delete from Inventory where UserID = @user and Amount = 0";
                             await cmd.ExecuteNonQueryAsync();
 
-                            cmd.CommandText = "update Stats set Gold = Gold - (select Cost from Upgrades where ItemID = @item) where User = @user";
+                            cmd.CommandText = "update Stats set Gold = Gold - (select Cost from Upgrades where ItemID = @item) where UserID = @user";
                             await cmd.ExecuteNonQueryAsync();
 
                             if (success)
                             {
-                                cmd.CommandText = "select 1 from Inventory where User = @user and ItemID = @item";
+                                cmd.CommandText = "select 1 from Inventory where UserID = @user and ItemID = @item";
                                 using (SqlDataReader reader = cmd.ExecuteReader())
                                 {
                                     if (reader.HasRows)
                                     {
                                         reader.Close();
-                                        cmd.CommandText = "update Inventory set Amount = Amount + 1 where User = @user and ItemID = @item";
+                                        cmd.CommandText = "update Inventory set Amount = Amount + 1 where UserID = @user and ItemID = @item";
                                         await cmd.ExecuteNonQueryAsync();
                                     }
                                     else
                                     {
                                         reader.Close();
-                                        cmd.CommandText = "insert into Inventory (User, ItemID, Amount) values (@user, @item, 1)";
+                                        cmd.CommandText = "insert into Inventory (UserID, ItemID, Amount) values (@user, @item, 1)";
                                         await cmd.ExecuteNonQueryAsync();
                                     }
                                 }
@@ -1697,7 +1720,7 @@ namespace DiscordBot.Data
         }
 
         #region test only
-        internal async static Task setLevel(ulong id, int level)
+        internal async static Task SetLevel(long userId, byte level)
         {
             using (SqlConnection conn = Helper.getConnection())
             {
@@ -1710,16 +1733,18 @@ namespace DiscordBot.Data
                         {
                             cmd.Transaction = tr;
 
-                            cmd.CommandText = string.Format("update Stats set " +
-                                                            "Level = (Level + 1), " +
-                                                            "Strength = 0, " +
-                                                            "Dexterity = 0, " +
-                                                            "Stamina = 0, " +
-                                                            "Luck = 0 " +
-                                                            "where user = {0}", id);
+                            cmd.CommandText = "update Stats set " +
+                                              "Level = (Level + 1), " +
+                                              "Strength = 0, " +
+                                              "Dexterity = 0, " +
+                                              "Stamina = 0, " +
+                                              "Luck = 0 " +
+                                              "where UserID = @user";
+                            cmd.Parameters.Add("@user", DbType.Int64).Value = userId;
                             await cmd.ExecuteNonQueryAsync();
-                            cmd.CommandText = string.Format("update Stats set Level = @level where user = {0}", id);
-                            cmd.Parameters.Add("@level", DbType.Int32).Value = level;
+
+                            cmd.CommandText = "update Stats set Level = @level where UserID = @user";
+                            cmd.Parameters.Add("@level", DbType.Byte).Value = level;
                             await cmd.ExecuteNonQueryAsync();
                         }
                         tr.Commit();
@@ -1737,7 +1762,7 @@ namespace DiscordBot.Data
             }
         }
 
-        internal async static Task<string> SpawnItem(ulong userId, long itemId, int amount)
+        internal async static Task<string> SpawnItem(long userId, int itemId, int amount)
         {
             bool itemExists = false;
             using (SqlConnection conn = Helper.getConnection())
@@ -1751,8 +1776,8 @@ namespace DiscordBot.Data
                         {
                             cmd.Transaction = tr;
 
-                            cmd.CommandText = string.Format("select 1 from Items where ID = @id", itemId);
-                            cmd.Parameters.Add("@id", DbType.Int64).Value = itemId;
+                            cmd.CommandText = "select 1 from Items where ItemID = @item";
+                            cmd.Parameters.Add("@item", DbType.Int32).Value = itemId;
                             cmd.Parameters.Add("@amount", DbType.Int32).Value = amount;
                             
                             using (SqlDataReader reader = cmd.ExecuteReader())
@@ -1763,19 +1788,20 @@ namespace DiscordBot.Data
 
                             if (itemExists)
                             {
-                                cmd.CommandText = string.Format("select 1 from Inventory where User = {0} and ItemID = @id", userId);
+                                cmd.CommandText = "select 1 from Inventory where UserID = @user and ItemID = @item";
+                                cmd.Parameters.Add("@user", DbType.Int64).Value = userId;
                                 using (SqlDataReader reader = cmd.ExecuteReader())
                                 {
                                     if (reader.HasRows)
                                     {
                                         reader.Close();
-                                        cmd.CommandText = string.Format("update Inventory set Amount = Amount + @amount where User = {0} and ItemID = @id", userId);
+                                        cmd.CommandText = "update Inventory set Amount = Amount + @amount where UserID = @user and ItemID = @item";
                                         await cmd.ExecuteNonQueryAsync();
                                     }
                                     else
                                     {
                                         reader.Close();
-                                        cmd.CommandText = string.Format("insert into Inventory (User, ItemID, Amount) values ({0}, @id, @amount)", userId);
+                                        cmd.CommandText = "insert into Inventory (UserID, ItemID, Amount) values (@user, @item, @amount)";
                                         await cmd.ExecuteNonQueryAsync();
                                     }
                                 }

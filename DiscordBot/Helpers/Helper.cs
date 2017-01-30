@@ -33,48 +33,48 @@ namespace DiscordBot.Helpers
             switch ((string)reader["Type"])
             {
                 case "W":
-                    item = new Weapon((long)reader["ID"],
+                    item = new Weapon((int)reader["ItemID"],
                                       (string)reader["Name"],
-                                      (string)reader["Type"],
-                                      (int)reader["Level"],
+                                      (char)reader["Type"],
+                                      (byte)reader["Level"],
                                       (int)reader["ValueBuy"],
                                       (int)reader["ValueSell"],
-                                      (int)reader["AttackMin"],
-                                      (int)reader["AttackMax"],
-                                      (int)reader["Critical"],
-                                      (int)reader["Strength"],
-                                      (int)reader["Dexterity"],
-                                      (int)reader["Stamina"],
-                                      (int)reader["Sense"]);
+                                      (short)reader["AttackMin"],
+                                      (short)reader["AttackMax"],
+                                      (byte)reader["Critical"],
+                                      (byte)reader["Strength"],
+                                      (byte)reader["Dexterity"],
+                                      (byte)reader["Stamina"],
+                                      (byte)reader["Sense"]);
                     break;
                 case "A":
-                    item = new Armor((long)reader["ID"],
+                    item = new Armor((int)reader["ItemID"],
                                      (string)reader["Name"],
-                                     (string)reader["Type"],
-                                     (string)reader["SubType"],
-                                     (int)reader["Level"],
+                                     (char)reader["Type"],
+                                     (char)reader["SubType"],
+                                     (byte)reader["Level"],
                                      (int)reader["ValueBuy"],
                                      (int)reader["ValueSell"],
-                                     (int)reader["Defense"],
-                                     (int)reader["Strength"],
-                                     (int)reader["Dexterity"],
-                                     (int)reader["Stamina"],
-                                     (int)reader["Sense"]);
+                                     (short)reader["Defense"],
+                                     (byte)reader["Strength"],
+                                     (byte)reader["Dexterity"],
+                                     (byte)reader["Stamina"],
+                                     (byte)reader["Sense"]);
                     break;
                 case "P":
-                    item = new Potion((long)reader["ID"],
+                    item = new Potion((int)reader["ItemID"],
                                      (string)reader["Name"],
-                                     (string)reader["Type"],
-                                     (int)reader["Level"],
+                                     (char)reader["Type"],
+                                     (byte)reader["Level"],
                                      (int)reader["ValueBuy"],
                                      (int)reader["ValueSell"],
-                                     (int)reader["Heal"]);
+                                     (short)reader["Heal"]);
                     break;
                 default:
-                    item = new Item((long)reader["ID"],
+                    item = new Item((int)reader["ItemID"],
                                      (string)reader["Name"],
-                                     (string)reader["Type"],
-                                     (int)reader["Level"],
+                                     (char)reader["Type"],
+                                     (byte)reader["Level"],
                                      (int)reader["ValueBuy"],
                                      (int)reader["ValueSell"]);
                     break;

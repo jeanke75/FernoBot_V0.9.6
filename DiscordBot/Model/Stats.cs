@@ -7,10 +7,10 @@ namespace DiscordBot.Model
     public class Stats
     {
         public string name;
-        public int level;
+        public short health;
+        public byte level;
         public int experience;
-        public int health;
-        public int gold;
+        public long gold;
         public Equipment equipment;
 
         #region base stats
@@ -46,7 +46,7 @@ namespace DiscordBot.Model
             }
         }
 
-        private int _baseCritical
+        private byte _baseCritical
         {
             get
             {
@@ -55,89 +55,90 @@ namespace DiscordBot.Model
         }
         #endregion
         #region user assigned stats
-        private int _strength;
-        private int _dexterity;
-        private int _stamina;
-        private int _luck;
+        private short _strength;
+        private short _dexterity;
+        private short _stamina;
+        private short _luck;
         #endregion
 
-        public int strength
+        public short strength
         {
             get
             {
-                return (int)Math.Floor(_baseStrength) + _strength + equipment.getEquipmentStrengthBonus(); ;
+                return (short)((int)Math.Floor(_baseStrength) + _strength + equipment.getEquipmentStrengthBonus());
             }
         }
 
-        public int dexterity
+        public short dexterity
         {
             get
             {
-                return (int)Math.Floor(_baseDexterity) + _dexterity + equipment.getEquipmentDexterityBonus();
+                return (short)((int)Math.Floor(_baseDexterity) + _dexterity + equipment.getEquipmentDexterityBonus());
             }
         }
 
-        public int stamina
+        public short stamina
         {
             get
             {
-                return (int)Math.Floor(_baseStamina) + _stamina + equipment.getEquipmentStaminaBonus();
+                return (short)((int)Math.Floor(_baseStamina) + _stamina + equipment.getEquipmentStaminaBonus());
             }
         }
 
-        public int luck
+        public byte luck
         {
             get
             {
-                return (int)Math.Floor(_baseLuck) + _luck + equipment.getEquipmentSenseBonus();
+                int tmp = (byte)Math.Floor(_baseLuck) + _luck + equipment.getEquipmentLuckBonus();
+                return (byte)(tmp <= 100 ? tmp : 100);
             }
         }
 
-        public int statpoints
+        public short statpoints
         {
             get
             {
-                return ((level - 1) * 3 + (int)Math.Floor(level * 0.2) * 2) - (_strength + _dexterity + _stamina + _luck);
+                return (short)(((level - 1) * 3 + (int)Math.Floor(level * 0.2) * 2) - (_strength + _dexterity + _stamina + _luck));
             }
         }
 
-        public int healthMax
+        public short healthMax
         {
             get
             {
-                return (int)Math.Floor(72.6 + (level - 1) * 7.3 + Math.Floor(level * 0.2) * 0.1 + (_stamina + equipment.getEquipmentStaminaBonus()) * 2.2);
+                return (short)((int)Math.Floor(72.6 + (level - 1) * 7.3 + Math.Floor(level * 0.2) * 0.1 + (_stamina + equipment.getEquipmentStaminaBonus()) * 2.2));
             }
         }
 
-        public int attackMin
+        public short attackMin
         {
             get
             {
-                return (int)Math.Floor(_baseStrength + _baseDexterity * 0.2 + (_strength + equipment.getEquipmentStrengthBonus()) * 0.5 + (_dexterity + equipment.getEquipmentDexterityBonus()) * 0.3) + equipment.getEquipmentAttackMinBonus();
+                return (short)((int)Math.Floor(_baseStrength + _baseDexterity * 0.2 + (_strength + equipment.getEquipmentStrengthBonus()) * 0.5 + (_dexterity + equipment.getEquipmentDexterityBonus()) * 0.3) + equipment.getEquipmentAttackMinBonus());
             }
         }
 
-        public int attackMax
+        public short attackMax
         {
             get
             {
-                return (int)Math.Floor(_baseStrength + _baseDexterity * 0.2 + (_strength + equipment.getEquipmentStrengthBonus()) * 0.5 + (_dexterity + equipment.getEquipmentDexterityBonus()) * 0.3) + equipment.getEquipmentAttackMaxBonus();
+                return (short)((int)Math.Floor(_baseStrength + _baseDexterity * 0.2 + (_strength + equipment.getEquipmentStrengthBonus()) * 0.5 + (_dexterity + equipment.getEquipmentDexterityBonus()) * 0.3) + equipment.getEquipmentAttackMaxBonus());
             }
         }
 
-        public int defense
+        public short defense
         {
             get
             {
-                return (int)Math.Floor((_baseDexterity + _dexterity + equipment.getEquipmentDexterityBonus()) * 0.6) + equipment.getEquipmentDefenseBonus();
+                return (short)((int)Math.Floor((_baseDexterity + _dexterity + equipment.getEquipmentDexterityBonus()) * 0.6) + equipment.getEquipmentDefenseBonus());
             }
         }
 
-        public int critical
+        public byte critical
         {
             get
             {
-                return _baseCritical + equipment.getEquipmentCriticalBonus();
+                return (byte)(_baseCritical + equipment.getEquipmentCriticalBonus());
             }
         }
 
@@ -149,7 +150,7 @@ namespace DiscordBot.Model
             }
         }
 
-        public Stats(User user, int level, int str, int dex, int sta, int lck, int health, int experience, int gold, Equipment equipment) {
+        public Stats(User user, byte level, short str, short dex, short sta, short lck, short health, int experience, long gold, Equipment equipment) {
             name = Helper.getDiscordDisplayName(user);
             this.level = level;
             _strength = str;

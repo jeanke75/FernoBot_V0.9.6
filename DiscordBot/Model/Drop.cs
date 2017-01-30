@@ -4,7 +4,7 @@
     {
         public int amount;
 
-        public Drop(long id, string name, int amount) : base(id, name, "", 0, 0, 0)
+        public Drop(int id, string name, int amount) : base(id, name, 'I', 0, 0, 0)
         {
             this.amount = amount;
         }

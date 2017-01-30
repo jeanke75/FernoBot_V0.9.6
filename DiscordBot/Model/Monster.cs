@@ -5,7 +5,7 @@ namespace DiscordBot.Model
 {
     class Monster
     {
-        internal long id;
+        internal int id;
         internal string name;
         private int _health;
         internal int health
@@ -20,16 +20,16 @@ namespace DiscordBot.Model
             }
         }
         internal int healthMax;
-        internal int healthRegen;
-        internal int defenseMinimum;
-        internal int defenseNoCritical;
-        internal int damageMinimum;
+        internal short healthRegen;
+        internal short defenseMinimum;
+        internal short defenseNoCritical;
+        internal short damageMinimum;
         internal int experience;
         internal int goldMinimum;
         internal int goldMaximum;
         List<Item> items;
 
-        internal Monster(long id, string name, int health, int healthMax, int healthRegen, int defenseMinimum, int defenseNoCritical, int damageMinimum)
+        internal Monster(int id, string name, int health, int healthMax, short healthRegen, short defenseMinimum, short defenseNoCritical, short damageMinimum)
         {
             this.id = id;
             this.name = name;
@@ -45,7 +45,7 @@ namespace DiscordBot.Model
             items = new List<Item>();
         }
 
-        internal Monster(long id, string name, int health, int healthMax, int healthRegen, int defenseMinimum, int defenseNoCritical, int damageMinimum, int experience, int goldMinimum, int goldMaximum)
+        internal Monster(int id, string name, int health, int healthMax, short healthRegen, short defenseMinimum, short defenseNoCritical, short damageMinimum, int experience, int goldMinimum, int goldMaximum)
         {
             this.id = id;
             this.name = name;
@@ -61,7 +61,7 @@ namespace DiscordBot.Model
             items = new List<Item>();
         }
 
-        internal Monster(long id, string name, int health, int healthMax, int healthRegen, int defenseMinimum, int defenseNoCritical, int damageMinimum, int experience, int goldMinimum, int goldMaximum, List<Item> items)
+        internal Monster(int id, string name, int health, int healthMax, short healthRegen, short defenseMinimum, short defenseNoCritical, short damageMinimum, int experience, int goldMinimum, int goldMaximum, List<Item> items)
         {
             this.id = id;
             this.name = name;

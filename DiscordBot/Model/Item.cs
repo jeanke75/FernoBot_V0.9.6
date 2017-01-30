@@ -4,14 +4,14 @@ namespace DiscordBot.Model
 {
     public class Item
     {
-        public long id;
+        public int id;
         public string name;
-        public string type;
+        public char type;
         public int valueBuy;
         public int valueSell;
-        public int level;
+        public byte level;
 
-        internal Item(long id, string name, string type, int level, int valueBuy, int valueSell)
+        internal Item(int id, string name, char type, byte level, int valueBuy, int valueSell)
         {
             this.id = id;
             this.name = name;

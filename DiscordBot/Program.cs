@@ -420,7 +420,7 @@ namespace DiscordBot
                             else
                             {
                                 await RPG_Controller.SetCooldown(e.Message.User, "assign");
-                                await e.Channel.SendMessage(await RPG_Controller.AssignStats(e.Message.User, RPG_Controller.Attribute.Strength, e.GetArg("Amount")));
+                                await e.Channel.SendMessage(await RPG_Controller.AssignStats(e.Message.User, RPG_Controller.CharacterAttribute.Strength, e.GetArg("Amount")));
                             }
                         }
                         catch(Exception ex)
@@ -446,7 +446,7 @@ namespace DiscordBot
                             else
                             {
                                 await RPG_Controller.SetCooldown(e.Message.User, "assign");
-                                await e.Channel.SendMessage(await RPG_Controller.AssignStats(e.Message.User, RPG_Controller.Attribute.Dexterity, e.GetArg("Amount")));
+                                await e.Channel.SendMessage(await RPG_Controller.AssignStats(e.Message.User, RPG_Controller.CharacterAttribute.Dexterity, e.GetArg("Amount")));
                             }
                         }
                         catch (Exception ex)
@@ -472,7 +472,7 @@ namespace DiscordBot
                             else
                             {
                                 await RPG_Controller.SetCooldown(e.Message.User, "assign");
-                                await e.Channel.SendMessage(await RPG_Controller.AssignStats(e.Message.User, RPG_Controller.Attribute.Stamina, e.GetArg("Amount")));
+                                await e.Channel.SendMessage(await RPG_Controller.AssignStats(e.Message.User, RPG_Controller.CharacterAttribute.Stamina, e.GetArg("Amount")));
                             }
                         }
                         catch (Exception ex)
@@ -498,7 +498,7 @@ namespace DiscordBot
                             else
                             {
                                 await RPG_Controller.SetCooldown(e.Message.User, "assign");
-                                await e.Channel.SendMessage(await RPG_Controller.AssignStats(e.Message.User, RPG_Controller.Attribute.Luck, e.GetArg("Amount")));
+                                await e.Channel.SendMessage(await RPG_Controller.AssignStats(e.Message.User, RPG_Controller.CharacterAttribute.Luck, e.GetArg("Amount")));
                             }
                         }
                         catch (Exception ex)
@@ -1191,8 +1191,7 @@ namespace DiscordBot
                 {
                     try
                     {
-                        await Data.RPGDataHelper.setLevel(Helper.getUserFromMention(e.Server, e.GetArg("Person")).Id, int.Parse(e.GetArg("Level")));
-                        await e.Channel.SendMessage($"{e.GetArg("Person")} set to level {int.Parse(e.GetArg("Level"))}");
+                        await e.Channel.SendMessage(await RPG_Controller.SetUserLevel(Helper.getUserFromMention(e.Server, e.GetArg("Person")), e.GetArg("Level")));
                     }
                     catch (Exception ex)
                     {
@@ -1210,7 +1209,7 @@ namespace DiscordBot
                 {
                     try
                     {
-                        await e.Channel.SendMessage(e.Message.User.Nickname + await Data.RPGDataHelper.SpawnItem(e.Message.User.Id, long.Parse(e.GetArg("Item")), int.Parse(e.GetArg("Amount"))));
+                        await e.Channel.SendMessage(await RPG_Controller.SpawnItemForUser(e.Message.User, Helper.getUserFromMention(e.Server, e.GetArg("Person")), e.GetArg("Item"), e.GetArg("Amount")));
                     }
                     catch (Exception ex)
                     {
@@ -1279,7 +1278,7 @@ namespace DiscordBot
                         }
                         catch (Exception ex)
                         {
-                            e.Channel.SendMessage(ex.ToString());
+                            await e.Channel.SendMessage(ex.ToString());
                         }
                     }
                 });
@@ -1315,7 +1314,7 @@ namespace DiscordBot
                     }
                     catch (Exception ex)
                     {
-                        e.Channel.SendMessage(ex.ToString());
+                        await e.Channel.SendMessage(ex.ToString());
                     }
                 });
         }

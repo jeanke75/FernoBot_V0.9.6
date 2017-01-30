@@ -4,7 +4,7 @@
     {
         public long amount;
 
-        public InventoryItem(long id, string name, string type, long amount) : base(id, name, type, 0, 0, 0)
+        public InventoryItem(int id, string name, char type, int amount) : base(id, name, type, 0, 0, 0)
         {
             this.amount = amount;
         }

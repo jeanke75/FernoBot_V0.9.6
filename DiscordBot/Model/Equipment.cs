@@ -25,9 +25,9 @@ namespace DiscordBot.Model
             this.mantle = mantle;
         }
 
-        public int getEquipmentStrengthBonus()
+        public short getEquipmentStrengthBonus()
         {
-            int bonus = 0;
+            short bonus = 0;
             if (weapon != null) bonus += weapon.strength;
             if (helmet != null) bonus += helmet.strength;
             if (upper != null) bonus += upper.strength;
@@ -39,9 +39,9 @@ namespace DiscordBot.Model
             return bonus;
         }
 
-        public int getEquipmentDexterityBonus()
+        public short getEquipmentDexterityBonus()
         {
-            int bonus = 0;
+            short bonus = 0;
             if (weapon != null) bonus += weapon.dexterity;
             if (helmet != null) bonus += helmet.dexterity;
             if (upper != null) bonus += upper.dexterity;
@@ -53,9 +53,9 @@ namespace DiscordBot.Model
             return bonus;
         }
 
-        public int getEquipmentStaminaBonus()
+        public short getEquipmentStaminaBonus()
         {
-            int bonus = 0;
+            short bonus = 0;
             if (weapon != null) bonus += weapon.stamina;
             if (helmet != null) bonus += helmet.stamina;
             if (upper != null) bonus += upper.stamina;
@@ -67,33 +67,33 @@ namespace DiscordBot.Model
             return bonus;
         }
 
-        public int getEquipmentSenseBonus()
+        public short getEquipmentLuckBonus()
         {
-            int bonus = 0;
-            if (weapon != null) bonus += weapon.sense;
-            if (helmet != null) bonus += helmet.sense;
-            if (upper != null) bonus += upper.sense;
-            if (pants != null) bonus += pants.sense;
-            if (boots != null) bonus += boots.sense;
-            if (gauntlets != null) bonus += gauntlets.sense;
-            if (shield != null) bonus += shield.sense;
-            if (mantle != null) bonus += mantle.sense;
+            short bonus = 0;
+            if (weapon != null) bonus += weapon.luck;
+            if (helmet != null) bonus += helmet.luck;
+            if (upper != null) bonus += upper.luck;
+            if (pants != null) bonus += pants.luck;
+            if (boots != null) bonus += boots.luck;
+            if (gauntlets != null) bonus += gauntlets.luck;
+            if (shield != null) bonus += shield.luck;
+            if (mantle != null) bonus += mantle.luck;
             return bonus;
         }
 
-        public int getEquipmentAttackMinBonus()
+        public short getEquipmentAttackMinBonus()
         {
-            return (weapon != null ? weapon.attackMinimum : 0);
+            return (weapon != null ? weapon.attackMinimum : (short)0);
         }
 
-        public int getEquipmentAttackMaxBonus()
+        public short getEquipmentAttackMaxBonus()
         {
-            return (weapon != null ? weapon.attackMaximum : 0);
+            return (weapon != null ? weapon.attackMaximum : (short)0);
         }
 
-        public int getEquipmentDefenseBonus()
+        public short getEquipmentDefenseBonus()
         {
-            int bonus = 0;
+            short bonus = 0;
             if (helmet != null) bonus += helmet.defense;
             if (upper != null) bonus += upper.defense;
             if (pants != null) bonus += pants.defense;
@@ -104,9 +104,9 @@ namespace DiscordBot.Model
             return bonus;
         }
 
-        public int getEquipmentCriticalBonus()
+        public byte getEquipmentCriticalBonus()
         {
-            return (weapon != null ? weapon.critical : 0);
+            return (weapon != null ? weapon.critical : (byte)0);
         }
 
         public bool isItemEquipped(Item item)

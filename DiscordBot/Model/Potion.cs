@@ -4,9 +4,9 @@ namespace DiscordBot.Model
 {
     public class Potion : Item
     {
-        public int heal;
+        public short heal;
 
-        public Potion(long id, string name, string type, int level, int valueBuy, int valueSell, int heal) : base(id, name, type, level, valueBuy, valueSell)
+        public Potion(int id, string name, char type, byte level, int valueBuy, int valueSell, short heal) : base(id, name, type, level, valueBuy, valueSell)
         {
             this.heal = heal;
         }

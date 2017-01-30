@@ -10,12 +10,13 @@ namespace DiscordBot.Controllers
 {
     static class RPG_Controller
     {
-        internal enum Attribute { Strength, Dexterity, Stamina, Luck };
+        internal enum CharacterAttribute { Strength, Dexterity, Stamina, Luck };
 
         #region Cooldowns
         internal async static Task<int> GetCooldown(User user, string command, int cooldown)
         {
-            TimeSpan ts = DateTime.Now - await RPGDataHelper.GetTimeCommandUsed(user.Id, command);
+            long userId = await RPGDataHelper.GetUserID(user.Id);
+            TimeSpan ts = DateTime.Now - await RPGDataHelper.GetTimeCommandUsed(userId, command);
             if (ts.TotalSeconds > cooldown)
             {
                 return 0;
@@ -28,7 +29,8 @@ namespace DiscordBot.Controllers
 
         internal async static Task SetCooldown(User user, string command)
         {
-            await RPGDataHelper.SetTimeCommandUsed(user.Id, command);
+            long userId = await RPGDataHelper.GetUserID(user.Id);
+            await RPGDataHelper.SetTimeCommandUsed(userId, command);
         }
         #endregion
 
@@ -36,7 +38,7 @@ namespace DiscordBot.Controllers
         {
             try
             {
-                //if (await RPGDataHelper.UserStartedAdventure(user.Id)) return $"{Helper.getDiscordDisplayName(user)}, you've already started your adventure.";
+                if (await RPGDataHelper.GetUserID(user.Id) != 0) return $"{Helper.getDiscordDisplayName(user)}, you've already started your adventure.";
 
                 await RPGDataHelper.Create(user.Id);
             
@@ -50,9 +52,10 @@ namespace DiscordBot.Controllers
 
         internal async static Task<string> Stats(User user)
         {
-            if (!await RPGDataHelper.UserStartedAdventure(user.Id)) return $"{Helper.getDiscordDisplayName(user)} hasn't started their adventure yet. Type !create to begin.";
+            long userId = await RPGDataHelper.GetUserID(user.Id);
+            if (userId == 0) return $"{Helper.getDiscordDisplayName(user)} hasn't started their adventure yet. Type !create to begin.";
 
-            Stats stats = await RPGDataHelper.GetUserInfo(user);
+            Stats stats = await RPGDataHelper.GetUserInfo(userId, user);
             if (stats != null)
             {
                 return stats.ToString();
@@ -63,29 +66,30 @@ namespace DiscordBot.Controllers
             }
         }
 
-        internal async static Task<string> AssignStats(User user, Attribute type, string amount)
+        internal async static Task<string> AssignStats(User user, CharacterAttribute type, string amount)
         {
-            if (!await RPGDataHelper.UserStartedAdventure(user.Id)) return $"{Helper.getDiscordDisplayName(user)}, you haven't started your adventure yet. Type !create to begin.";
+            long userId = await RPGDataHelper.GetUserID(user.Id);
+            if (userId == 0) return $"{Helper.getDiscordDisplayName(user)}, you haven't started your adventure yet. Type !create to begin.";
 
-            int pointsToAssign;
-            if (!int.TryParse(amount, out pointsToAssign)) return $"{Helper.getDiscordDisplayName(user)} tried to assign an invalid amount of attribute points.";
+            short pointsToAssign;
+            if (!short.TryParse(amount, out pointsToAssign)) return $"{Helper.getDiscordDisplayName(user)} tried to assign an invalid amount of attribute points.";
             if (pointsToAssign <= 0) return $"{Helper.getDiscordDisplayName(user)} tried to assign an invalid amount of attribute points.";
 
             string attribute;
-            if (type == Attribute.Strength) {
+            if (type == CharacterAttribute.Strength) {
                 attribute = "Strength";
-            } else if (type == Attribute.Dexterity) {
+            } else if (type == CharacterAttribute.Dexterity) {
                 attribute = "Dexterity";
-            } else if (type == Attribute.Stamina) {
+            } else if (type == CharacterAttribute.Stamina) {
                 attribute = "Stamina";
-            } else if (type == Attribute.Luck) {
+            } else if (type == CharacterAttribute.Luck) {
                 attribute = "Luck";
             } else {
                 attribute = "InvalidAttributeType";
             }
 
             // check if enough free attributes are available
-            int pointsAvailable = await RPGDataHelper.GetUnusedAttributePoints(user.Id);
+            short pointsAvailable = await RPGDataHelper.GetUnusedAttributePoints(userId);
             if (pointsAvailable == 0)
             {
                 return $"{Helper.getDiscordDisplayName(user)} tried to assign {pointsToAssign} attribute points to {attribute}, but doesn't have any available.";
@@ -96,21 +100,21 @@ namespace DiscordBot.Controllers
             }
 
             // assign attributes
-            if (type == Attribute.Strength)
+            if (type == CharacterAttribute.Strength)
             {
-                await RPGDataHelper.AssignAttributePointsToStrength(user.Id, pointsToAssign);
+                await RPGDataHelper.AssignAttributePointsToStrength(userId, pointsToAssign);
             }
-            else if (type == Attribute.Dexterity)
+            else if (type == CharacterAttribute.Dexterity)
             {
-                await RPGDataHelper.AssignAttributePointsToDexterity(user.Id, pointsToAssign);
+                await RPGDataHelper.AssignAttributePointsToDexterity(userId, pointsToAssign);
             }
-            else if (type == Attribute.Stamina)
+            else if (type == CharacterAttribute.Stamina)
             {
-                await RPGDataHelper.AssignAttributePointsToStamina(user.Id, pointsToAssign);
+                await RPGDataHelper.AssignAttributePointsToStamina(userId, pointsToAssign);
             }
-            else if (type == Attribute.Luck)
+            else if (type == CharacterAttribute.Luck)
             {
-                await RPGDataHelper.AssignAttributePointsToLuck(user.Id, pointsToAssign);
+                await RPGDataHelper.AssignAttributePointsToLuck(userId, pointsToAssign);
             }
                 
             return $"{Helper.getDiscordDisplayName(user)} assigned {pointsToAssign} attribute points to {attribute}.";
@@ -118,12 +122,13 @@ namespace DiscordBot.Controllers
 
         internal async static Task<string> Inventory(User user, string pageparam)
         {
-            if (!await RPGDataHelper.UserStartedAdventure(user.Id)) return $"{Helper.getDiscordDisplayName(user)}, you haven't started your adventure yet. Type !create to begin.";
+            long userId = await RPGDataHelper.GetUserID(user.Id);
+            if (userId == 0) return $"{Helper.getDiscordDisplayName(user)}, you haven't started your adventure yet. Type !create to begin.";
 
             int page = 0;
             int.TryParse(pageparam, out page);
 
-            Tuple<List<InventoryItem>, int, int> result = await RPGDataHelper.GetInventory(user.Id, page);
+            Tuple<List<InventoryItem>, int, int> result = await RPGDataHelper.GetInventory(userId, page);
 
             string header = $"+------ {Helper.getDiscordDisplayName(user)}'s Inventory (Page {result.Item2}/{result.Item3}) ------+" + Environment.NewLine;
 
@@ -144,14 +149,15 @@ namespace DiscordBot.Controllers
 
         internal async static Task<string> Equip(User user, string itemparam)
         {
-            if (!await RPGDataHelper.UserStartedAdventure(user.Id)) return $"{Helper.getDiscordDisplayName(user)}, you haven't started your adventure yet. Type !create to begin.";
+            long userId = await RPGDataHelper.GetUserID(user.Id);
+            if (userId == 0) return $"{Helper.getDiscordDisplayName(user)}, you haven't started your adventure yet. Type !create to begin.";
 
             Item item = null;
-            ulong id = 0;
-            if (!itemparam.Contains("+") && ulong.TryParse(itemparam, out id))
+            int itemId = 0;
+            if (!itemparam.Contains("+") && int.TryParse(itemparam, out itemId))
             {
-                if (id < 0) return $"{Helper.getDiscordDisplayName(user)} please provide a valid id.";
-                item = await RPGDataHelper.GetItemInfoByID(id);
+                if (itemId < 0) return $"{Helper.getDiscordDisplayName(user)} please provide a valid id.";
+                item = await RPGDataHelper.GetItemInfoByID(itemId);
 
                 if (item == null) return $"{Helper.getDiscordDisplayName(user)} no item was found with that ID.";
             }
@@ -180,43 +186,46 @@ namespace DiscordBot.Controllers
             }
 
             //check if item in inventory
-            if (await RPGDataHelper.GetAmountOfItemOwned(user.Id, (ulong)item.id) == 0) return $"{Helper.getDiscordDisplayName(user)}, you don't have this item.";
+            if (await RPGDataHelper.GetAmountOfItemOwned(userId, item.id) == 0) return $"{Helper.getDiscordDisplayName(user)}, you don't have this item.";
 
-            Stats stats = await RPGDataHelper.GetUserInfo(user);
+            Stats stats = await RPGDataHelper.GetUserInfo(userId, user);
 
             // check if it can be equipped
-            if (!item.type.Equals("W") && !item.type.Equals("A")) return $"{Helper.getDiscordDisplayName(user)}, this item can't be equipped.";
+            if (!item.type.Equals('W') && !item.type.Equals('A')) return $"{Helper.getDiscordDisplayName(user)}, this item can't be equipped.";
 
             if (stats.equipment.isItemEquipped(item)) return $"{Helper.getDiscordDisplayName(user)}, this item is already equipped.";
 
             if (stats.level < item.level) return $"{Helper.getDiscordDisplayName(user)}, you're level doesn't meet the requirements.";
 
-            await RPGDataHelper.EquipItem(user.Id, item.id, (item.type.Equals("A") ? ((Armor)item).subtype : item.type));
+            await RPGDataHelper.EquipItem(user.Id, item.id, (item.type.Equals('A') ? ((Armor)item).subtype : item.type));
 
             return $"{Helper.getDiscordDisplayName(user)}, the {item.name} was succesfully equipped.";
         }
 
         internal async static Task<string> Unequip(User user, bool weapon, bool helmet, bool upper, bool pants, bool boots, bool gauntlets, bool mantle, bool shield)
         {
-            if (!await RPGDataHelper.UserStartedAdventure(user.Id)) return $"{Helper.getDiscordDisplayName(user)}, you haven't started your adventure yet. Type !create to begin.";
+            long userId = await RPGDataHelper.GetUserID(user.Id);
+            if (userId == 0) return $"{Helper.getDiscordDisplayName(user)}, you haven't started your adventure yet. Type !create to begin.";
 
-            await RPGDataHelper.UnequipItems(user.Id, weapon, helmet, upper, pants, boots, gauntlets, mantle, shield);
+            await RPGDataHelper.UnequipItems(userId, weapon, helmet, upper, pants, boots, gauntlets, mantle, shield);
 
             return $"{Helper.getDiscordDisplayName(user)}, the item was succesfully unequipped.";
         }
 
         internal async static Task<string> Donate(User caller, User target, string amount)
         {
-            if (!await RPGDataHelper.UserStartedAdventure(caller.Id)) return $"{Helper.getDiscordDisplayName(caller)}, you haven't started your adventure yet. Type !create to begin.";
+            long callerId = await RPGDataHelper.GetUserID(caller.Id);
+            if (callerId == 0) return $"{Helper.getDiscordDisplayName(caller)}, you haven't started your adventure yet. Type !create to begin.";
             if (caller == target) return $"{Helper.getDiscordDisplayName(caller)}, you can't donate to yourself";
-            if (!await RPGDataHelper.UserStartedAdventure(target.Id)) return $"{Helper.getDiscordDisplayName(caller)}, this person hasn't started their adventure yet.";
+            long targetId = await RPGDataHelper.GetUserID(caller.Id);
+            if (targetId == 0) return $"{Helper.getDiscordDisplayName(caller)}, this person hasn't started their adventure yet.";
 
-            int goldToDonate = 0;
-            if (!int.TryParse(amount, out goldToDonate) || goldToDonate <= 0) return $"{Helper.getDiscordDisplayName(caller)} tried to donate an invalid amount of gold.";
+            long goldToDonate = 0;
+            if (!long.TryParse(amount, out goldToDonate) || goldToDonate <= 0) return $"{Helper.getDiscordDisplayName(caller)} tried to donate an invalid amount of gold.";
 
-            if (await RPGDataHelper.GetGold(caller.Id) < goldToDonate) return $"{Helper.getDiscordDisplayName(caller)}, you don't have this much gold.";
+            if (await RPGDataHelper.GetCurrentUserGold(callerId) < goldToDonate) return $"{Helper.getDiscordDisplayName(caller)}, you don't have this much gold.";
 
-            await RPGDataHelper.Donate(caller.Id, target.Id, goldToDonate);
+            await RPGDataHelper.Donate(callerId, targetId, goldToDonate);
 
             return $"{Helper.getDiscordDisplayName(caller)} donated {goldToDonate} gold to {Helper.getDiscordDisplayName(target)}";
         }
@@ -224,11 +233,11 @@ namespace DiscordBot.Controllers
         internal async static Task<string> ItemInfo(User user, string param)
         {
             Item item = null;
-            ulong id = 0;
-            if (!param.Contains("+") && ulong.TryParse(param, out id))
+            int itemId = 0;
+            if (!param.Contains("+") && int.TryParse(param, out itemId))
             {
-                if (id < 0) return $"{Helper.getDiscordDisplayName(user)} please provide a valid id.";
-                item = await RPGDataHelper.GetItemInfoByID(id);
+                if (itemId < 0) return $"{Helper.getDiscordDisplayName(user)} please provide a valid id.";
+                item = await RPGDataHelper.GetItemInfoByID(itemId);
 
                 if (item == null) return $"{Helper.getDiscordDisplayName(user)} no item was found with that ID.";
             }
@@ -261,11 +270,11 @@ namespace DiscordBot.Controllers
         internal async static Task<string> MonsterInfo(User user, string param)
         {
             Monster monster = null;
-            ulong id = 0;
-            if (ulong.TryParse(param, out id))
+            int monsterId = 0;
+            if (int.TryParse(param, out monsterId))
             {
-                if (id < 0) return $"{Helper.getDiscordDisplayName(user)} please provide a valid id.";
-                monster = await RPGDataHelper.GetMonsterInfoByID(id);
+                if (monsterId < 0) return $"{Helper.getDiscordDisplayName(user)} please provide a valid id.";
+                monster = await RPGDataHelper.GetMonsterInfoByID(monsterId);
 
                 if (monster == null) return $"{Helper.getDiscordDisplayName(user)} no monster was found with that ID.";
             }
@@ -325,17 +334,18 @@ namespace DiscordBot.Controllers
 
         internal async static Task<string> ShopBuy(User user, string amountparam, string itemparam)
         {
-            if (!await RPGDataHelper.UserStartedAdventure(user.Id)) return $"{Helper.getDiscordDisplayName(user)}, you haven't started your adventure yet. Type !create to begin.";
+            long userId = await RPGDataHelper.GetUserID(user.Id);
+            if (userId == 0) return $"{Helper.getDiscordDisplayName(user)}, you haven't started your adventure yet. Type !create to begin.";
 
             int amount = 0;
             if (!int.TryParse(amountparam, out amount) || amount <= 0) return $"{Helper.getDiscordDisplayName(user)} please provide a valid amount.";
 
             Item item = null;
-            ulong id = 0;
-            if (!itemparam.Contains("+") && ulong.TryParse(itemparam, out id))
+            int itemId = 0;
+            if (!itemparam.Contains("+") && int.TryParse(itemparam, out itemId))
             {
-                if (id < 0) return $"{Helper.getDiscordDisplayName(user)} please provide a valid id. shouldn't occur";
-                item = await RPGDataHelper.GetShopItemByID(id);
+                if (itemId < 0) return $"{Helper.getDiscordDisplayName(user)} please provide a valid id. shouldn't occur";
+                item = await RPGDataHelper.GetShopItemByID(itemId);
 
                 if (item == null) return $"{Helper.getDiscordDisplayName(user)} the store doesn't sell an item with that ID.";
             }
@@ -363,26 +373,27 @@ namespace DiscordBot.Controllers
                 }
             }
 
-            int price = amount * item.valueBuy;
-            if (price > await RPGDataHelper.GetGold(user.Id)) return $"{Helper.getDiscordDisplayName(user)}, you don't have enough gold.";
-            await RPGDataHelper.ShopBuy(user.Id, amount, item.id);
+            long price = amount * item.valueBuy;
+            if (price > await RPGDataHelper.GetCurrentUserGold(userId)) return $"{Helper.getDiscordDisplayName(user)}, you don't have enough gold.";
+            await RPGDataHelper.ShopBuy(userId, amount, item.id);
 
             return $"{Helper.getDiscordDisplayName(user)} bought {amount}x {item.name} for {price} gold.";
         }
 
         internal async static Task<string> ShopSell(User user, string amountparam, string itemparam)
         {
-            if (!await RPGDataHelper.UserStartedAdventure(user.Id)) return $"{Helper.getDiscordDisplayName(user)}, you haven't started your adventure yet. Type !create to begin.";
+            long userId = await RPGDataHelper.GetUserID(user.Id);
+            if (userId == 0) return $"{Helper.getDiscordDisplayName(user)}, you haven't started your adventure yet. Type !create to begin.";
 
             int amount = 0;
             if (!int.TryParse(amountparam, out amount) || amount <= 0) return $"{Helper.getDiscordDisplayName(user)} please provide a valid amount.";
 
             Item item = null;
-            ulong id = 0;
-            if (!itemparam.Contains("+") && ulong.TryParse(itemparam, out id))
+            int itemId = 0;
+            if (!itemparam.Contains("+") && int.TryParse(itemparam, out itemId))
             {
-                if (id < 0) return $"{Helper.getDiscordDisplayName(user)} please provide a valid id.";
-                item = await RPGDataHelper.GetItemInfoByID(id);
+                if (itemId < 0) return $"{Helper.getDiscordDisplayName(user)} please provide a valid id.";
+                item = await RPGDataHelper.GetItemInfoByID(itemId);
 
                 if (item == null) return $"{Helper.getDiscordDisplayName(user)} no item was found with that ID.";
             }
@@ -410,41 +421,42 @@ namespace DiscordBot.Controllers
                 }
             }
 
-            int amountInventory = await RPGDataHelper.GetAmountOfItemOwned(user.Id, (ulong)item.id);
-            if ((await RPGDataHelper.GetUserInfo(user)).equipment.isItemEquipped(item)) amountInventory--;
+            int amountInventory = await RPGDataHelper.GetAmountOfItemOwned(userId, item.id);
+            if ((await RPGDataHelper.GetUserInfo(userId, user)).equipment.isItemEquipped(item)) amountInventory--;
             if (amountInventory < amount) return $"{Helper.getDiscordDisplayName(user)} you don't have {amount} {item.name}.";
 
-            int price = amount * item.valueSell;
-            if (price > await RPGDataHelper.GetGold(user.Id)) return $"{Helper.getDiscordDisplayName(user)}, you don't have enough gold.";
-            await RPGDataHelper.ShopSell(user.Id, amount, item.id);
+            long price = amount * item.valueSell;
+            if (price > await RPGDataHelper.GetCurrentUserGold(userId)) return $"{Helper.getDiscordDisplayName(user)}, you don't have enough gold.";
+            await RPGDataHelper.ShopSell(userId, amount, item.id);
 
             return $"{Helper.getDiscordDisplayName(user)} sold {amount}x {item.name} for {price} gold.";
         }
 
         internal async static Task<string> Attack(User user, string monsterID)
         {
-            if (!await RPGDataHelper.UserStartedAdventure(user.Id)) return $"{Helper.getDiscordDisplayName(user)}, you haven't started your adventure yet. Type !create to begin.";
+            long userId = await RPGDataHelper.GetUserID(user.Id);
+            if (userId == 0) return $"{Helper.getDiscordDisplayName(user)}, you haven't started your adventure yet. Type !create to begin.";
 
-            Stats stats = await RPGDataHelper.GetUserInfo(user);
-            Monster monster = await RPGDataHelper.GetFight(user.Id);
+            Stats stats = await RPGDataHelper.GetUserInfo(userId, user);
+            Monster monster = await RPGDataHelper.GetFight(userId);
             if (monster == null)
             {
-                ulong id = 0;
-                if (!ulong.TryParse(monsterID, out id)) return $"{Helper.getDiscordDisplayName(user)}, you must provide a valid monster id.";
+                int id = 0;
+                if (!int.TryParse(monsterID, out id) || id < 0) return $"{Helper.getDiscordDisplayName(user)}, you must provide a valid monster id.";
                 monster = await RPGDataHelper.GetMonsterInfoByID(id);
 
                 if (monster == null) return $"{Helper.getDiscordDisplayName(user)}, the monster you want to fight does not exist.";
 
-                await RPGDataHelper.CreateFight(user, monster);
-                return await BattleMonster(user, stats, monster, true);
+                await RPGDataHelper.CreateFight(userId, monster);
+                return await BattleMonster(userId, stats, monster, true);
             }
             else
             {
-                return await BattleMonster(user, stats, monster, false);
+                return await BattleMonster(userId, stats, monster, false);
             }
         }
 
-        private async static Task<string> BattleMonster(User user, Stats player, Monster monster, bool isNewFight)
+        private async static Task<string> BattleMonster(long userId, Stats player, Monster monster, bool isNewFight)
         {
             string s = "```diff" + Environment.NewLine +
                       $"+------ {player.name}'s fight ------+" + Environment.NewLine;
@@ -458,15 +470,15 @@ namespace DiscordBot.Controllers
             }
 
             // monster deals damage
-            int userDef = player.defense;
-            int monsterAttack = monster.damageMinimum;
+            short userDef = player.defense;
+            short monsterAttack = monster.damageMinimum;
             bool monsterCritical = false;
             if (userDef < monster.defenseNoCritical)
             {
                 if (userDef < monster.defenseMinimum)
                 {
                     double dmgMultiplier = monster.defenseMinimum / userDef;
-                    monsterAttack = (int)Math.Round(Math.Pow(dmgMultiplier, 3) * monsterAttack);
+                    monsterAttack = (short)Math.Round(Math.Pow(dmgMultiplier, 3) * monsterAttack);
                 }
                 // check if critical hit
                 if (Helper.rng.Next(0, 100) < 33)
@@ -482,7 +494,7 @@ namespace DiscordBot.Controllers
             // deal damage if still alive
             if (player.health > 0)
             {
-                int userAttack = Helper.rng.Next(player.attackMin, player.attackMax);
+                short userAttack = (short)Helper.rng.Next(player.attackMin, player.attackMax);
                 bool userCritical = Helper.rng.Next(0, 100) < player.critical;
                 if (userCritical)
                 {
@@ -525,25 +537,25 @@ namespace DiscordBot.Controllers
                         foreach (Drop drop in drops) s += $" {drop.name} x{drop.amount},";
                         s = s.Substring(0, s.Length - 1) + Environment.NewLine; // remove last comma and add newline
                     }
-                    await RPGDataHelper.BattleFinished(user, player, monster, drops);
+                    await RPGDataHelper.BattleFinished(userId, player, monster, drops);
                 }
                 else
                 {
                     s += $"+ You have {player.health}/{player.healthMax} health left" + Environment.NewLine +
                          $"+ {monster.name} has {monster.health}/{monster.healthMax} health left" + Environment.NewLine;
-                    await RPGDataHelper.BattleFinished(user, player, monster, null);
+                    await RPGDataHelper.BattleFinished(userId, player, monster, null);
                 }
             }
             else
             {
                 player.health = player.healthMax;
                 int expLost = (int)Math.Round(player.experienceNeeded * 0.1);
-                int goldLost = (int)Math.Round(player.gold * 0.1);
+                long goldLost = (long)Math.Round(player.gold * 0.1);
                 player.experience = (player.experience - expLost >= 0 ? player.experience - expLost : 0);
                 player.gold -= goldLost;
                 s += $"- You have been killed and lost {goldLost} gold and {expLost} experience!" + Environment.NewLine;
 
-                await RPGDataHelper.BattleFinished(user, player, monster, null);
+                await RPGDataHelper.BattleFinished(userId, player, monster, null);
             }
 
             s += "+-------";
@@ -555,33 +567,35 @@ namespace DiscordBot.Controllers
 
         internal async static Task<string> Heal(User user)
         {
-            if (!await RPGDataHelper.UserStartedAdventure(user.Id)) return $"{Helper.getDiscordDisplayName(user)}, you haven't started your adventure yet. Type !create to begin.";
+            long userId = await RPGDataHelper.GetUserID(user.Id);
+            if (userId == 0) return $"{Helper.getDiscordDisplayName(user)}, you haven't started your adventure yet. Type !create to begin.";
 
-            Stats stats = await RPGDataHelper.GetUserInfo(user);
+            Stats stats = await RPGDataHelper.GetUserInfo(userId, user);
 
-            int health = stats.health;
-            int healthMax = stats.healthMax;
+            short health = stats.health;
+            short healthMax = stats.healthMax;
             if (health >= healthMax) return $"{Helper.getDiscordDisplayName(user)}, you're already fully healed.";
 
-            Potion potion = await RPGDataHelper.GetBestPotionInInventory(user.Id);
+            Potion potion = await RPGDataHelper.GetBestPotionInInventory(userId);
 
             if (potion == null) return $"{Helper.getDiscordDisplayName(user)}, you don't have any potions.";
 
             stats.health += potion.heal;
             if (stats.health > healthMax) stats.health = healthMax;
 
-            await RPGDataHelper.Heal(user.Id, stats.health, potion.id);
+            await RPGDataHelper.Heal(userId, stats.health, potion.id);
 
             return $"{Helper.getDiscordDisplayName(user)}, you've used a {potion.name} and recovered {stats.health - health} health. ({stats.health}/{stats.healthMax})";
         }
 
         internal async static Task<string> Craft(User user, string itemparam, int type)
         {
-            if (!await RPGDataHelper.UserStartedAdventure(user.Id)) return $"{Helper.getDiscordDisplayName(user)}, you haven't started your adventure yet. Type !create to begin.";
+            long userId = await RPGDataHelper.GetUserID(user.Id);
+            if (userId == 0) return $"{Helper.getDiscordDisplayName(user)}, you haven't started your adventure yet. Type !create to begin.";
 
             Item item = null;
-            ulong id = 0;
-            if (!itemparam.Contains("+") && ulong.TryParse(itemparam, out id))
+            int id = 0;
+            if (!itemparam.Contains("+") && int.TryParse(itemparam, out id))
             {
                 if (id < 0) return $"{Helper.getDiscordDisplayName(user)} please provide a valid id.";
                 item = await RPGDataHelper.GetItemInfoByID(id);
@@ -613,12 +627,12 @@ namespace DiscordBot.Controllers
             }
 
             //check if item can be crafted and get required items to craft
-            Tuple<List<Tuple<Item, long, long>>, int, int> craftInfo = await RPGDataHelper.GetRequirementsCraftedItem(user.Id, item.id);
+            Tuple<List<Tuple<Item, int, int>>, int, int> craftInfo = await RPGDataHelper.GetRequirementsCraftedItem(userId, item.id);
 
             if (craftInfo == null) return $"{Helper.getDiscordDisplayName(user)}, this item can't be crafted.";
 
             //check if corresponding saviour orb is in inventory
-            long savOrbId = 0;
+            int savOrbId = 0;
             if (type != 0)
             {
                 //get item id
@@ -630,7 +644,7 @@ namespace DiscordBot.Controllers
                 if (result.Count == 1)
                 {
                     savOrbId = result[0].id;
-                    if (await RPGDataHelper.GetAmountOfItemOwned(user.Id, (ulong)savOrbId) < 1) return $"{Helper.getDiscordDisplayName(user)}, you need to have a Saviour Orb L{type} to do this.";
+                    if (await RPGDataHelper.GetAmountOfItemOwned(userId, savOrbId) < 1) return $"{Helper.getDiscordDisplayName(user)}, you need to have a Saviour Orb L{type} to do this.";
                 }
                 else
                 {
@@ -641,7 +655,7 @@ namespace DiscordBot.Controllers
             //check if all the items are owned
             string missingItems = "";
             string usedItems = "";
-            foreach(Tuple<Item, long, long> req in craftInfo.Item1)
+            foreach(Tuple<Item, int, int> req in craftInfo.Item1)
             {
                 usedItems += string.Format("{0} x{1}, ", req.Item1.name, req.Item2);
                 if (req.Item2 > req.Item3) missingItems += string.Format("{0} x{1}, ", req.Item1.name, req.Item2 - req.Item3);
@@ -650,7 +664,7 @@ namespace DiscordBot.Controllers
             if (!missingItems.Equals("")) return $"{Helper.getDiscordDisplayName(user)}, you are missing some items: {missingItems.Substring(0,missingItems.Length-2)}";
 
             //check if enough gold is owned
-            if (craftInfo.Item2 > await RPGDataHelper.GetGold(user.Id)) return $"{Helper.getDiscordDisplayName(user)}, you don't have enough gold.";
+            if (craftInfo.Item2 > await RPGDataHelper.GetCurrentUserGold(userId)) return $"{Helper.getDiscordDisplayName(user)}, you don't have enough gold.";
 
             string status = $"{Helper.getDiscordDisplayName(user)}'s attempt to craft {item.name} ";
 
@@ -713,7 +727,7 @@ namespace DiscordBot.Controllers
                 
             }
 
-            await RPGDataHelper.Craft(user.Id, savOrbId, item.id, success);
+            await RPGDataHelper.Craft(userId, savOrbId, item.id, success);
 
             if (type == 0)
             {
@@ -724,6 +738,35 @@ namespace DiscordBot.Controllers
                 return status + Environment.NewLine + $"1x Saviour Orb L{type}, {usedItems.Substring(0, usedItems.Length - 2)} and {craftInfo.Item2} gold was used.";
             }
         }
+
+        #region test only
+        internal async static Task<string> SetUserLevel(User target, string levelparam)
+        {
+            long userId = await RPGDataHelper.GetUserID(target.Id);
+            if (userId == 0) return $"{Helper.getDiscordDisplayName(target)} hasn't started their adventure yet.";
+
+            byte level = 0;
+            if (!byte.TryParse(levelparam, out level))
+
+            await RPGDataHelper.SetLevel(userId, level);
+
+            return $"{Helper.getDiscordDisplayName(target)} set to level {level}";
+        }
+
+        internal async static Task<string> SpawnItemForUser(User caller, User target, string itemparam, string amountparam)
+        {
+            long userId = await RPGDataHelper.GetUserID(target.Id);
+            if (userId == 0) return $"{Helper.getDiscordDisplayName(target)} hasn't started their adventure yet.";
+
+            int itemId = 0;
+            if (!int.TryParse(itemparam, out itemId)) return $"{Helper.getDiscordDisplayName(caller)}, please provide a valid item id.";
+
+            int amount = 0;
+            if (!int.TryParse(amountparam, out amount) || amount < 1) return $"{Helper.getDiscordDisplayName(caller)} please provide a valid amount.";
+
+            return caller.Nickname + await RPGDataHelper.SpawnItem(userId, itemId, amount);
+        }
+        #endregion
     }
 }
 
