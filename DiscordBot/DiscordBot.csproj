@@ -158,6 +158,7 @@
     <Compile Include="Data\RPGDataHelper.cs" />
     <Compile Include="Data\SocialDataHelper.cs" />
     <Compile Include="Exceptions\RPGException.cs" />
+    <Compile Include="Helpers\Extensions.cs" />
     <Compile Include="Helpers\Helper.cs" />
     <Compile Include="Model\Armor.cs" />
     <Compile Include="Model\Drop.cs" />
