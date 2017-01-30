@@ -172,13 +172,13 @@ namespace DiscordBot.Data
                             await cmd.ExecuteNonQueryAsync();*/
 
                             // equip gear
-                            cmd.CommandText = "insert into Equipped (User, HelmetID, UpperID, PantsID, BootsID, GloveID, MantleID, ShieldID, WeaponID) " +
+                            cmd.CommandText = "insert into Equipped (UserID, HelmetID, UpperID, PantsID, BootsID, GloveID, MantleID, ShieldID, WeaponID) " +
                                               "values (@user, null, null, null, null, null, null, null, null)"; // 13, 23, 33, 43, 53, 0, 0, 2);
                             await cmd.ExecuteNonQueryAsync();
 
                             //create cooldowns
                             cmd.Parameters.Add("@DateTime", DbType.DateTime).Value = new DateTime(2000, 1, 1, 0, 0, 0);
-                            cmd.CommandText = "insert into Cooldowns(User, Start, Stats, Assign, Inventory, Equip, Donate, Info, Shop, Attack, Heal, Craft) " +
+                            cmd.CommandText = "insert into Cooldowns(UserID, Start, Stats, Assign, Inventory, Equip, Donate, Info, Shop, Attack, Heal, Craft) " +
                                               "values (@user, @DateTime, @DateTime, @DateTime, @DateTime, @DateTime, @DateTime, @DateTime, @DateTime, @DateTime, @DateTime, @DateTime)";//, Helper.DateTimeToString(new DateTime(2000, 1, 1, 0, 0, 0)));
                             await cmd.ExecuteNonQueryAsync();
                         }

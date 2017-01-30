@@ -1243,6 +1243,7 @@ namespace DiscordBot
                 .Hide()
                 .Do(e =>
                 {
+                    _client.SetStatus(UserStatus.Offline);
                     Thread.Sleep(1000);
                     Environment.Exit(0);
                 });
