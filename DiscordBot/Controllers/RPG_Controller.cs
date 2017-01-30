@@ -122,7 +122,7 @@ namespace DiscordBot.Controllers
             return $"{Helper.getDiscordDisplayName(user)} assigned {pointsToAssign} attribute points to {attribute}.";
         }
 
-        internal async static Task<string> Inventory(User user, string pageparam)
+        internal async static Task<string> Inventory(User user, string pageparam, Channel c)
         {
             long userId = await RPGDataHelper.GetUserID(user.Id);
             if (userId == 0) return $"{Helper.getDiscordDisplayName(user)}, you haven't started your adventure yet. Type !create to begin.";
@@ -130,7 +130,11 @@ namespace DiscordBot.Controllers
             int page = 0;
             int.TryParse(pageparam, out page);
 
+            await c.SendMessage("test2");
+
             Tuple<List<InventoryItem>, int, int> result = await RPGDataHelper.GetInventory(userId, page);
+
+            await c.SendMessage("test2");
 
             string header = $"+------ {Helper.getDiscordDisplayName(user)}'s Inventory (Page {result.Item2}/{result.Item3}) ------+" + Environment.NewLine;
 

@@ -517,7 +517,6 @@ namespace DiscordBot
                 {
                     try
                     {
-                        await e.Channel.SendMessage("test");
                         int cd = await RPG_Controller.GetCooldown(e.Message.User, "inventory", 15);
                         if (cd > 0)
                         {
@@ -525,7 +524,8 @@ namespace DiscordBot
                         }
                         else
                         {
-                            await e.Channel.SendMessage(await RPG_Controller.Inventory(e.Message.User, e.GetArg("Page")));
+                            await e.Channel.SendMessage("test");
+                            await e.Channel.SendMessage(await RPG_Controller.Inventory(e.Message.User, e.GetArg("Page"), e.Channel));
                             await RPG_Controller.SetCooldown(e.Message.User, "inventory");
                         }
                     }
