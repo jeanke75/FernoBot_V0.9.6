@@ -61,7 +61,7 @@ namespace DiscordBot.Data
                         {
                             cmd.Transaction = tr;
 
-                            cmd.CommandText = string.Format("Update Cooldowns set {0} = sysdate where UserID = @user", command);
+                            cmd.CommandText = string.Format("Update Cooldowns set {0} = sysdatetime() where UserID = @user", command);
                             cmd.Parameters.Add("@user", DbType.Int64).Value = userId;
                             await cmd.ExecuteNonQueryAsync();
                         }

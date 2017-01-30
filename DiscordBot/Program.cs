@@ -390,9 +390,9 @@ namespace DiscordBot
                         }
                         else
                         {
-                            await RPG_Controller.SetCooldown(e.Message.User, "stats");
                             User user = Helper.getUserFromMention(e.Server, e.GetArg("Person"));
                             await e.Channel.SendMessage(await RPG_Controller.Stats((user != null ? user : e.Message.User)));
+                            await RPG_Controller.SetCooldown(e.Message.User, "stats");
                         }
                     }
                     catch(Exception ex)
@@ -419,8 +419,8 @@ namespace DiscordBot
                             }
                             else
                             {
-                                await RPG_Controller.SetCooldown(e.Message.User, "assign");
                                 await e.Channel.SendMessage(await RPG_Controller.AssignStats(e.Message.User, RPG_Controller.CharacterAttribute.Strength, e.GetArg("Amount")));
+                                await RPG_Controller.SetCooldown(e.Message.User, "assign");
                             }
                         }
                         catch(Exception ex)
@@ -445,8 +445,8 @@ namespace DiscordBot
                             }
                             else
                             {
-                                await RPG_Controller.SetCooldown(e.Message.User, "assign");
                                 await e.Channel.SendMessage(await RPG_Controller.AssignStats(e.Message.User, RPG_Controller.CharacterAttribute.Dexterity, e.GetArg("Amount")));
+                                await RPG_Controller.SetCooldown(e.Message.User, "assign");
                             }
                         }
                         catch (Exception ex)
@@ -471,8 +471,8 @@ namespace DiscordBot
                             }
                             else
                             {
-                                await RPG_Controller.SetCooldown(e.Message.User, "assign");
                                 await e.Channel.SendMessage(await RPG_Controller.AssignStats(e.Message.User, RPG_Controller.CharacterAttribute.Stamina, e.GetArg("Amount")));
+                                await RPG_Controller.SetCooldown(e.Message.User, "assign");
                             }
                         }
                         catch (Exception ex)
@@ -497,8 +497,8 @@ namespace DiscordBot
                             }
                             else
                             {
-                                await RPG_Controller.SetCooldown(e.Message.User, "assign");
                                 await e.Channel.SendMessage(await RPG_Controller.AssignStats(e.Message.User, RPG_Controller.CharacterAttribute.Luck, e.GetArg("Amount")));
+                                await RPG_Controller.SetCooldown(e.Message.User, "assign");
                             }
                         }
                         catch (Exception ex)
@@ -524,8 +524,8 @@ namespace DiscordBot
                         }
                         else
                         {
-                            await RPG_Controller.SetCooldown(e.Message.User, "inventory");
                             await e.Channel.SendMessage(await RPG_Controller.Inventory(e.Message.User, e.GetArg("Page")));
+                            await RPG_Controller.SetCooldown(e.Message.User, "inventory");
                         }
                     }
                     catch (Exception ex)
@@ -551,8 +551,8 @@ namespace DiscordBot
                             }
                             else
                             {
-                                await RPG_Controller.SetCooldown(e.Message.User, "equip");
                                 await e.Channel.SendMessage(await RPG_Controller.Equip(e.Message.User, e.GetArg("Item").Trim()));
+                                await RPG_Controller.SetCooldown(e.Message.User, "equip");
                             }
                         }
                     }
@@ -578,8 +578,8 @@ namespace DiscordBot
                             }
                             else
                             {
-                                await RPG_Controller.SetCooldown(e.Message.User, "equip");
                                 await e.Channel.SendMessage(await RPG_Controller.Unequip(e.Message.User, true, true, true, true, true, true, true, true));
+                                await RPG_Controller.SetCooldown(e.Message.User, "equip");
                             }
                         }
                         catch (Exception ex)
@@ -602,8 +602,8 @@ namespace DiscordBot
                             }
                             else
                             {
-                                await RPG_Controller.SetCooldown(e.Message.User, "equip");
                                 await e.Channel.SendMessage(await RPG_Controller.Unequip(e.Message.User, true, false, false, false, false, false, false, false));
+                                await RPG_Controller.SetCooldown(e.Message.User, "equip");
                             }
                         }
                         catch (Exception ex)
@@ -627,8 +627,8 @@ namespace DiscordBot
                             }
                             else
                             {
-                                await RPG_Controller.SetCooldown(e.Message.User, "equip");
                                 await e.Channel.SendMessage(await RPG_Controller.Unequip(e.Message.User, false, true, false, false, false, false, false, false));
+                                await RPG_Controller.SetCooldown(e.Message.User, "equip");
                             }
                         }
                         catch (Exception ex)
@@ -652,8 +652,8 @@ namespace DiscordBot
                             }
                             else
                             {
-                                await RPG_Controller.SetCooldown(e.Message.User, "equip");
                                 await e.Channel.SendMessage(await RPG_Controller.Unequip(e.Message.User, false, false, true, false, false, false, false, false));
+                                await RPG_Controller.SetCooldown(e.Message.User, "equip");
                             }
                         }
                         catch (Exception ex)
@@ -677,8 +677,8 @@ namespace DiscordBot
                             }
                             else
                             {
-                                await RPG_Controller.SetCooldown(e.Message.User, "equip");
                                 await e.Channel.SendMessage(await RPG_Controller.Unequip(e.Message.User, false, false, false, true, false, false, false, false));
+                                await RPG_Controller.SetCooldown(e.Message.User, "equip");
                             }
                         }
                         catch (Exception ex)
@@ -702,8 +702,8 @@ namespace DiscordBot
                             }
                             else
                             {
-                                await RPG_Controller.SetCooldown(e.Message.User, "equip");
                                 await e.Channel.SendMessage(await RPG_Controller.Unequip(e.Message.User, false, false, false, false, true, false, false, false));
+                                await RPG_Controller.SetCooldown(e.Message.User, "equip");
                             }
                         }
                         catch (Exception ex)
@@ -727,8 +727,8 @@ namespace DiscordBot
                             }
                             else
                             {
-                                await RPG_Controller.SetCooldown(e.Message.User, "equip");
                                 await e.Channel.SendMessage(await RPG_Controller.Unequip(e.Message.User, false, false, false, false, false, true, false, false));
+                                await RPG_Controller.SetCooldown(e.Message.User, "equip");
                             }
                         }
                         catch (Exception ex)
@@ -752,8 +752,8 @@ namespace DiscordBot
                             }
                             else
                             {
-                                await RPG_Controller.SetCooldown(e.Message.User, "equip");
                                 await e.Channel.SendMessage(await RPG_Controller.Unequip(e.Message.User, false, false, false, false, false, false, true, false));
+                                await RPG_Controller.SetCooldown(e.Message.User, "equip");
                             }
                         }
                         catch (Exception ex)
@@ -776,8 +776,8 @@ namespace DiscordBot
                             }
                             else
                             {
-                                await RPG_Controller.SetCooldown(e.Message.User, "equip");
                                 await e.Channel.SendMessage(await RPG_Controller.Unequip(e.Message.User, false, false, false, false, false, false, false, true));
+                                await RPG_Controller.SetCooldown(e.Message.User, "equip");
                             }
                         }
                         catch (Exception ex)
@@ -804,8 +804,8 @@ namespace DiscordBot
                         }
                         else
                         {
-                            await RPG_Controller.SetCooldown(e.Message.User, "donate");
                             await e.Channel.SendMessage(await RPG_Controller.Donate(e.Message.User, Helper.getUserFromMention(e.Server, e.GetArg("Person")), e.GetArg("Amount")));
+                            await RPG_Controller.SetCooldown(e.Message.User, "donate");
                         }
                     }
                     catch (Exception ex)
@@ -832,8 +832,8 @@ namespace DiscordBot
                             }
                             else
                             {
-                                await RPG_Controller.SetCooldown(e.Message.User, "info");
                                 await e.Channel.SendMessage(await RPG_Controller.ItemInfo(e.Message.User, e.GetArg("Item").Trim()));
+                                await RPG_Controller.SetCooldown(e.Message.User, "info");
                             }
                         }
                     }
@@ -861,8 +861,8 @@ namespace DiscordBot
                             }
                             else
                             {
-                                await RPG_Controller.SetCooldown(e.Message.User, "info");
                                 await e.Channel.SendMessage(await RPG_Controller.MonsterInfo(e.Message.User, e.GetArg("Monster").Trim()));
+                                await RPG_Controller.SetCooldown(e.Message.User, "info");
                             }
                         }
                     }
@@ -890,8 +890,8 @@ namespace DiscordBot
                             }
                             else
                             {
-                                await RPG_Controller.SetCooldown(e.Message.User, "shop");
                                 await e.Channel.SendMessage(await RPG_Controller.ShopInfo(e.GetArg("Page")));
+                                await RPG_Controller.SetCooldown(e.Message.User, "shop");
                             }
                         }
                         catch (Exception ex)
@@ -918,8 +918,8 @@ namespace DiscordBot
                                 }
                                 else
                                 {
-                                    await RPG_Controller.SetCooldown(e.Message.User, "shop");
                                     await e.Channel.SendMessage(await RPG_Controller.ShopBuy(e.Message.User, e.GetArg("Amount"), e.GetArg("Item").Trim()));
+                                    await RPG_Controller.SetCooldown(e.Message.User, "shop");
                                 }
                             }
                         }
@@ -947,8 +947,8 @@ namespace DiscordBot
                                 }
                                 else
                                 {
-                                    await RPG_Controller.SetCooldown(e.Message.User, "shop");
                                     await e.Channel.SendMessage(await RPG_Controller.ShopSell(e.Message.User, e.GetArg("Amount"), e.GetArg("Item").Trim()));
+                                    await RPG_Controller.SetCooldown(e.Message.User, "shop");
                                 }
                             }
                         }
@@ -975,8 +975,8 @@ namespace DiscordBot
                         }
                         else
                         {
-                            await RPG_Controller.SetCooldown(e.Message.User, "attack");
                             await e.Channel.SendMessage(await RPG_Controller.Attack(e.Message.User, e.GetArg("Monster")));
+                            await RPG_Controller.SetCooldown(e.Message.User, "attack");
                         }
                     }
                     catch (Exception ex)
@@ -999,8 +999,8 @@ namespace DiscordBot
                         }
                         else
                         {
-                            await RPG_Controller.SetCooldown(e.Message.User, "heal");
                             await e.Channel.SendMessage(await RPG_Controller.Heal(e.Message.User));
+                            await RPG_Controller.SetCooldown(e.Message.User, "heal");
                         }
                     }
                     catch (Exception ex)
@@ -1028,8 +1028,8 @@ namespace DiscordBot
                                 }
                                 else
                                 {
-                                    await RPG_Controller.SetCooldown(e.Message.User, "craft");
                                     await e.Channel.SendMessage(await RPG_Controller.Craft(e.Message.User, e.GetArg("Item").Trim(), 0));
+                                    await RPG_Controller.SetCooldown(e.Message.User, "craft");
                                 }
                             }
                         }
@@ -1056,8 +1056,8 @@ namespace DiscordBot
                                 }
                                 else
                                 {
-                                    await RPG_Controller.SetCooldown(e.Message.User, "craft");
                                     await e.Channel.SendMessage(await RPG_Controller.Craft(e.Message.User, e.GetArg("Item").Trim(), 1));
+                                    await RPG_Controller.SetCooldown(e.Message.User, "craft");
                                 }
                             }
                         }
@@ -1084,8 +1084,8 @@ namespace DiscordBot
                                 }
                                 else
                                 {
-                                    await RPG_Controller.SetCooldown(e.Message.User, "craft");
                                     await e.Channel.SendMessage(await RPG_Controller.Craft(e.Message.User, e.GetArg("Item").Trim(), 2));
+                                    await RPG_Controller.SetCooldown(e.Message.User, "craft");
                                 }
                             }
                         }
@@ -1112,8 +1112,8 @@ namespace DiscordBot
                                 }
                                 else
                                 {
-                                    await RPG_Controller.SetCooldown(e.Message.User, "craft");
                                     await e.Channel.SendMessage(await RPG_Controller.Craft(e.Message.User, e.GetArg("Item").Trim(), 3));
+                                    await RPG_Controller.SetCooldown(e.Message.User, "craft");
                                 }
                             }
                         }
@@ -1140,8 +1140,8 @@ namespace DiscordBot
                                 }
                                 else
                                 {
-                                    await RPG_Controller.SetCooldown(e.Message.User, "craft");
                                     await e.Channel.SendMessage(await RPG_Controller.Craft(e.Message.User, e.GetArg("Item").Trim(), 4));
+                                    await RPG_Controller.SetCooldown(e.Message.User, "craft");
                                 }
                             }
                         }
@@ -1168,8 +1168,8 @@ namespace DiscordBot
                                 }
                                 else
                                 {
-                                    await RPG_Controller.SetCooldown(e.Message.User, "craft");
                                     await e.Channel.SendMessage(await RPG_Controller.Craft(e.Message.User, e.GetArg("Item").Trim(), 5));
+                                    await RPG_Controller.SetCooldown(e.Message.User, "craft");
                                 }
                             }
                         }
@@ -1243,7 +1243,6 @@ namespace DiscordBot
                 .Hide()
                 .Do(e =>
                 {
-                    _client.SetStatus(UserStatus.Offline);
                     Thread.Sleep(1000);
                     Environment.Exit(0);
                 });
