@@ -1516,7 +1516,7 @@ namespace DiscordBot.Data
                     using (SqlCommand cmd = conn.CreateCommand())
                     {
                         cmd.CommandText = "select * from PotionsView " +
-                                          "where exists(select 1 from Inventory where ItemID = PotionsView.ID and amount > 0 and UserID = @user) " +
+                                          "where exists(select 1 from Inventory where ItemID = PotionsView.ItemID and amount > 0 and UserID = @user) " +
                                           "order by heal desc";
                         cmd.Parameters.Add("@user", DbType.Int64).Value = userId;
                         using (SqlDataReader reader = cmd.ExecuteReader())
