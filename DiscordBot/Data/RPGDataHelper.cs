@@ -678,7 +678,7 @@ namespace DiscordBot.Data
         }
         #endregion
 
-        internal async static Task<Tuple<List<InventoryItem>, int, int>> GetInventory(long userId, int page, Channel c)
+        internal async static Task<Tuple<List<InventoryItem>, int, int>> GetInventory(long userId, int page)
         {
             List<InventoryItem> inventory = new List<InventoryItem>();
             int pageCount = 0;
@@ -689,32 +689,31 @@ namespace DiscordBot.Data
                 {
                     using (SqlCommand cmd = conn.CreateCommand())
                     {
-                        c.SendMessage("test3");
                         string command = "select {0} from (" +
                                          "select Items.ItemID, Items.Name, Items.Type, " +
                                          "case when Inventory.ItemID in (" +
                                          "select * from (" +
-                                         "select HelmetID as ItemID from equipped " +
+                                         "select HelmetID as ItemID from equipped where UserID = @user " +
                                          "union " +
-                                         "select UpperID as ItemID from equipped " +
+                                         "select UpperID as ItemID from equipped where UserID = @user " +
                                          "union " +
-                                         "select PantsID as ItemID from equipped " +
+                                         "select PantsID as ItemID from equipped where UserID = @user " +
                                          "union " +
-                                         "select BootsID as ItemID from equipped " +
+                                         "select BootsID as ItemID from equipped where UserID = @user " +
                                          "union " +
-                                         "select GloveID as ItemID from equipped " +
+                                         "select GloveID as ItemID from equipped where UserID = @user " +
                                          "union " +
-                                         "select MantleID as ItemID from equipped " +
+                                         "select MantleID as ItemID from equipped where UserID = @user " +
                                          "union " +
-                                         "select ShieldID as ItemID from equipped " +
+                                         "select ShieldID as ItemID from equipped where UserID = @user " +
                                          "union " +
-                                         "select WeaponID as ItemID from equipped " +
+                                         "select WeaponID as ItemID from equipped where UserID = @user" +
                                          ") x " +
-                                         "where x.ItemID <> 0 and UserID = @user) " +
+                                         "where x.ItemID not null ) " +
                                          "then Inventory.Amount - 1 else Inventory.Amount end as Amount " +
                                          "from Inventory inner join Items on Items.ItemID = Inventory.ItemID " +
-                                         "where UserID = @user) " +
-                                         "where Amount > 0 ";
+                                         "where UserID = @user) y " +
+                                         "where y.Amount > 0 ";
 
 
                         cmd.CommandText = string.Format(command, "CAST((count(1) / 10.0) + 0.9 as int) as Pages");
