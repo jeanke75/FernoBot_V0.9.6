@@ -709,7 +709,7 @@ namespace DiscordBot.Data
                                          "union " +
                                          "select WeaponID as ItemID from equipped where UserID = @user" +
                                          ") x " +
-                                         "where x.ItemID not null ) " +
+                                         "where x.ItemID is not null ) " +
                                          "then Inventory.Amount - 1 else Inventory.Amount end as Amount " +
                                          "from Inventory inner join Items on Items.ItemID = Inventory.ItemID " +
                                          "where UserID = @user) y " +
