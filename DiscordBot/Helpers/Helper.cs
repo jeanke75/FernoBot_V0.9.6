@@ -30,9 +30,9 @@ namespace DiscordBot.Helpers
         internal static Item parseItem(SqlDataReader reader)
         {
             Item item;
-            switch ((string)reader["Type"])
+            switch (((string)reader["Type"])[0])
             {
-                case "W":
+                case 'W':
                     item = new Weapon((int)reader["ItemID"],
                                       (string)reader["Name"],
                                       ((string)reader["Type"])[0],
@@ -47,7 +47,7 @@ namespace DiscordBot.Helpers
                                       (byte)reader["Stamina"],
                                       (byte)reader["Sense"]);
                     break;
-                case "A":
+                case 'A':
                     item = new Armor((int)reader["ItemID"],
                                      (string)reader["Name"],
                                      ((string)reader["Type"])[0],
@@ -61,7 +61,7 @@ namespace DiscordBot.Helpers
                                      (byte)reader["Stamina"],
                                      (byte)reader["Sense"]);
                     break;
-                case "P":
+                case 'P':
                     item = new Potion((int)reader["ItemID"],
                                       (string)reader["Name"],
                                       ((string)reader["Type"])[0],
