@@ -751,10 +751,6 @@ namespace DiscordBot.Data
                         }
                     }
                 }
-                catch (Exception ex)
-                {
-                    
-                }
                 finally
                 {
                     conn.Close();
@@ -1110,7 +1106,7 @@ namespace DiscordBot.Data
                         int itemsPerPage = 10;
                         int start = (page - 1) * itemsPerPage;
 
-                        cmd.CommandText = string.Format("select * from (select *, row_number() over (order by Level) as rownum from Items where ValueBuy > 0) where rownum between {0} and {1}", start, start + itemsPerPage);
+                        cmd.CommandText = string.Format("select x.* from (select *, row_number() over (order by Level) as rownum from Items where ValueBuy > 0) x where x.rownum between {0} and {1}", start, start + itemsPerPage);
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
                             while (await reader.ReadAsync())
