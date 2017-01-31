@@ -197,7 +197,7 @@ namespace DiscordBot.Data
             }
         }
 
-        internal async static Task EquipItem(ulong userId, long itemId, char itemType)
+        internal async static Task EquipItem(long userId, long itemId, char itemType)
         {
             string type = "";
             switch (itemType)

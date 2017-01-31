@@ -199,7 +199,7 @@ namespace DiscordBot.Controllers
 
             if (stats.level < item.level) return $"{Helper.getDiscordDisplayName(user)}, you're level doesn't meet the requirements.";
 
-            await RPGDataHelper.EquipItem(user.Id, item.id, (item.type.Equals('A') ? ((Armor)item).subtype : item.type));
+            await RPGDataHelper.EquipItem(userId, item.id, (item.type.Equals('A') ? ((Armor)item).subtype : item.type));
 
             return $"{Helper.getDiscordDisplayName(user)}, the {item.name} was succesfully equipped.";
         }
