@@ -629,7 +629,7 @@ namespace DiscordBot.Controllers
             }
 
             //check if item can be crafted and get required items to craft
-            Tuple<List<Tuple<Item, int, int>>, int, int> craftInfo = await RPGDataHelper.GetRequirementsCraftedItem(userId, item.id);
+            Tuple<List<Tuple<Item, byte, byte>>, int, int> craftInfo = await RPGDataHelper.GetRequirementsCraftedItem(userId, item.id);
 
             if (craftInfo == null) return $"{Helper.getDiscordDisplayName(user)}, this item can't be crafted.";
 
@@ -657,7 +657,7 @@ namespace DiscordBot.Controllers
             //check if all the items are owned
             string missingItems = "";
             string usedItems = "";
-            foreach(Tuple<Item, int, int> req in craftInfo.Item1)
+            foreach(Tuple<Item, byte, byte> req in craftInfo.Item1)
             {
                 usedItems += string.Format("{0} x{1}, ", req.Item1.name, req.Item2);
                 if (req.Item2 > req.Item3) missingItems += string.Format("{0} x{1}, ", req.Item1.name, req.Item2 - req.Item3);

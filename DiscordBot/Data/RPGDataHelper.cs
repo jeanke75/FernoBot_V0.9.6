@@ -1588,9 +1588,9 @@ namespace DiscordBot.Data
             }
         }
 
-        internal async static Task<Tuple<List<Tuple<Item, int, int>>, int, int>> GetRequirementsCraftedItem(long userId, long itemId)
+        internal async static Task<Tuple<List<Tuple<Item, byte, byte>>, int, int>> GetRequirementsCraftedItem(long userId, long itemId)
         {
-            Tuple<List<Tuple<Item, int, int>>, int, int> result = null;
+            Tuple<List<Tuple<Item, byte, byte>>, int, int> result = null;
             using (SqlConnection conn = Helper.getConnection())
             {
                 await conn.OpenAsync();
@@ -1598,7 +1598,7 @@ namespace DiscordBot.Data
                 {
                     using (SqlCommand cmd = conn.CreateCommand())
                     {
-                        int chance = 0;
+                        short chance = 0;
                         int cost = 0;
 
                         cmd.CommandText = "select Cost, Chance from Upgrades where ItemID = @item";
@@ -1609,31 +1609,31 @@ namespace DiscordBot.Data
                             {
                                 await reader.ReadAsync();
                                 cost = (int)reader["Cost"];
-                                chance = (int)reader["Chance"];
+                                chance = (short)reader["Chance"];
                             }
                             reader.Close();
                         }
 
-                        List<Tuple<Item, int, int>> itemsNeeded = new List<Tuple<Item, int, int>>();
-                        cmd.CommandText = "select UpgradeCost.NeededItemId as ID, cast(UpgradeCost.Amount as INT) as AmountNeeded, ifnull(Inv.Amount, 0) as AmountOwned, " +
+                        List<Tuple<Item, byte, byte>> itemsNeeded = new List<Tuple<Item, byte, byte>>();
+                        cmd.CommandText = "select UpgradeCost.NeededItemId as ID, UpgradeCost.Amount as AmountNeeded, isnull(Inv.Amount, 0) as AmountOwned, " +
                                           "Items.Name, 'I' as Type, Items.Level, Items.valueBuy, Items.ValueSell " +
                                           "from UpgradeCost " +
                                           "left join (select UserID, ItemID, cast(case when exists(select 1 from(select HelmetID as ID from Equipped " +
                                           "union " +
-                                          "select UpperID as ID from Equipped " +
+                                          "select UpperID as ItemID from Equipped where UserID = @user " +
                                           "union " +
-                                          "select PantsID as ID from Equipped " +
+                                          "select PantsID as ItemID from Equipped where UserID = @user " +
                                           "union " +
-                                          "select BootsID as ID from Equipped " +
+                                          "select BootsID as ItemID from Equipped where UserID = @user " +
                                           "union " +
-                                          "select GloveID as ID from Equipped " +
+                                          "select GloveID as ItemID from Equipped where UserID = @user " +
                                           "union " +
-                                          "select MantleID as ID from Equipped " +
+                                          "select MantleID as ItemID from Equipped where UserID = @user " +
                                           "union " +
-                                          "select ShieldID as ID from Equipped " +
+                                          "select ShieldID as ItemID from Equipped where UserID = @user " +
                                           "union " +
-                                          "select WeaponID as ID from Equipped) x " +
-                                          "where x.ID = Inventory.ItemID) then Amount-1 else Amount end as INT) as Amount " +
+                                          "select WeaponID as ItemID from Equipped where UserID = @user) x " +
+                                          "where x.ItemID = Inventory.ItemID) then Amount-1 else Amount end as INT) as Amount " +
                                           "from inventory where Inventory.UserID = @user) Inv on Inv.ItemID = UpgradeCost.NeededItemId " +
                                           "inner join Items on Items.ItemID = UpgradeCost.NeededItemId " +
                                           "where UpgradeCost.UpgradeItemId = @item";
@@ -1643,14 +1643,14 @@ namespace DiscordBot.Data
                             while (await reader.ReadAsync())
                             {
                                 Item item = Helper.parseItem(reader);
-                                int needed = (int)reader["AmountNeeded"];
-                                int owned = (int)reader["AmountOwned"];
-                                itemsNeeded.Add(new Tuple<Item, int, int>(item, needed, owned));
+                                byte needed = (byte)reader["AmountNeeded"];
+                                byte owned = (byte)reader["AmountOwned"];
+                                itemsNeeded.Add(new Tuple<Item, byte, byte>(item, needed, owned));
                             }
                             reader.Close();
                         }
 
-                        if (itemsNeeded.Count > 0) result = new Tuple<List<Tuple<Item, int, int>>, int, int>(itemsNeeded, cost, chance);
+                        if (itemsNeeded.Count > 0) result = new Tuple<List<Tuple<Item, byte, byte>>, int, int>(itemsNeeded, cost, chance);
                     }
                 }
                 finally
