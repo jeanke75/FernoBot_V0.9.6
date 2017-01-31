@@ -156,19 +156,19 @@ namespace DiscordBot.Data
                             await cmd.ExecuteNonQueryAsync();
 
                             // give upper
-                            cmd.CommandText = $"insert into Inventory (User, ItemID, Amount) values (@user, {cu}, 1)";
+                            cmd.CommandText = $"insert into Inventory (UserID, ItemID, Amount) values (@user, {cu}, 1)";
                             await cmd.ExecuteNonQueryAsync();
 
                             // give pants
-                            cmd.CommandText = $"insert into Inventory (User, ItemID, Amount) values (@user, {cp}, 1)";
+                            cmd.CommandText = $"insert into Inventory (UserID, ItemID, Amount) values (@user, {cp}, 1)";
                             await cmd.ExecuteNonQueryAsync();
 
                             //give boots
-                            cmd.CommandText = $"insert into Inventory (User, ItemID, Amount) values (@user, {cb}, 1)";
+                            cmd.CommandText = $"insert into Inventory (UserID, ItemID, Amount) values (@user, {cb}, 1)";
                             await cmd.ExecuteNonQueryAsync();
 
                             // give gauntlets
-                            cmd.CommandText = $"insert into Inventory (User, ItemID, Amount) values (@user, {cg}, 1)";
+                            cmd.CommandText = $"insert into Inventory (UserID, ItemID, Amount) values (@user, {cg}, 1)";
                             await cmd.ExecuteNonQueryAsync();
 
                             // equip gear
