@@ -689,7 +689,7 @@ namespace DiscordBot.Data
                 {
                     using (SqlCommand cmd = conn.CreateCommand())
                     {
-                        string command = "select {0} from (" +
+                        string command = "select {0}, row_number() over (y.ItemID) as rownum from (" +
                                          "select Items.ItemID, Items.Name, Items.Type, " +
                                          "case when Inventory.ItemID in (" +
                                          "select x.ItemID from (" +
@@ -737,7 +737,7 @@ namespace DiscordBot.Data
                         int itemsPerPage = 10;
                         int start = (page - 1) * itemsPerPage;
 
-                        cmd.CommandText = string.Format(command + "and RowNumber between {1} AND {2}", "*", start, start + itemsPerPage);
+                        cmd.CommandText = string.Format("select ItemID, Name, Type, Amount from (" + command + ") where rownum between {1} AND {2}", "*", start, start + itemsPerPage);
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
                             while (await reader.ReadAsync())
@@ -750,6 +750,10 @@ namespace DiscordBot.Data
                             reader.Close();
                         }
                     }
+                }
+                catch (Exception ex)
+                {
+                    
                 }
                 finally
                 {
