@@ -692,7 +692,7 @@ namespace DiscordBot.Data
                         string command = "select {0} from (" +
                                          "select Items.ItemID, Items.Name, Items.Type, " +
                                          "case when Inventory.ItemID in (" +
-                                         "select * from (" +
+                                         "select x.ItemID from (" +
                                          "select HelmetID as ItemID from equipped where UserID = @user " +
                                          "union " +
                                          "select UpperID as ItemID from equipped where UserID = @user " +
@@ -734,7 +734,10 @@ namespace DiscordBot.Data
                             page = pageCount;
 
                         // retrieve the inventory items
-                        cmd.CommandText = string.Format(command + "limit {1}, 10", "*", (page - 1) * 10);
+                        int itemsPerPage = 10;
+                        int start = (page - 1) * itemsPerPage;
+
+                        cmd.CommandText = string.Format(command + "and RowNumber between {1} AND {2}", "*", start, start + itemsPerPage);
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
                             while (await reader.ReadAsync())

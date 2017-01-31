@@ -524,7 +524,6 @@ namespace DiscordBot
                         }
                         else
                         {
-                            await e.Channel.SendMessage("test");
                             await e.Channel.SendMessage(await RPG_Controller.Inventory(e.Message.User, e.GetArg("Page")));
                             await RPG_Controller.SetCooldown(e.Message.User, "inventory");
                         }
