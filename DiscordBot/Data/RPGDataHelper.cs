@@ -1113,7 +1113,7 @@ namespace DiscordBot.Data
                             {
                                 items.Add(new Item((int)reader["ItemID"],
                                                    (string)reader["Name"],
-                                                   (char)reader["Type"],
+                                                   (char)(((string)reader["Type"])[0]),
                                                    (byte)reader["Level"],
                                                    (int)reader["ValueBuy"],
                                                    (int)reader["ValueSell"]));
