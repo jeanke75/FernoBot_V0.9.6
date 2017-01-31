@@ -174,7 +174,7 @@ namespace DiscordBot.Model
                        "|" + Environment.NewLine +
                       $"| Attributes: {statpoints}" + Environment.NewLine +
                       $"| Strength: {strength}  Dexterity: {dexterity}" + Environment.NewLine +
-                      $"| Stamina: {stamina}  Sense: {luck}" + Environment.NewLine +
+                      $"| Stamina: {stamina}  Luck: {luck}" + Environment.NewLine +
                        "|" + Environment.NewLine +
                       $"| Weapon: {(equipment.weapon != null ? equipment.weapon.name : "/")}  Shield: {(equipment.shield != null ? equipment.shield.name : "/")}" + Environment.NewLine +
                       $"| Helmet: {(equipment.helmet != null ? equipment.helmet.name : "/")}  Mantle: {(equipment.mantle != null ? equipment.mantle.name : "/")}" + Environment.NewLine +

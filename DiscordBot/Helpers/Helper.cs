@@ -45,7 +45,7 @@ namespace DiscordBot.Helpers
                                       (byte)reader["Strength"],
                                       (byte)reader["Dexterity"],
                                       (byte)reader["Stamina"],
-                                      (byte)reader["Sense"]);
+                                      (byte)reader["Luck"]);
                     break;
                 case 'A':
                     item = new Armor((int)reader["ItemID"],
@@ -59,7 +59,7 @@ namespace DiscordBot.Helpers
                                      (byte)reader["Strength"],
                                      (byte)reader["Dexterity"],
                                      (byte)reader["Stamina"],
-                                     (byte)reader["Sense"]);
+                                     (byte)reader["Luck"]);
                     break;
                 case 'P':
                     item = new Potion((int)reader["ItemID"],

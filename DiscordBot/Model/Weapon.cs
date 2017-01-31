@@ -12,7 +12,7 @@ namespace DiscordBot.Model
         public byte stamina;
         public byte luck;
 
-        public Weapon(int id, string name, char type, byte level, int valueBuy, int valueSell, short attackMinimum, short attackMaximum, byte critical, byte strength, byte dexterity, byte stamina, byte sense) : base(id, name, type, level, valueBuy, valueSell)
+        public Weapon(int id, string name, char type, byte level, int valueBuy, int valueSell, short attackMinimum, short attackMaximum, byte critical, byte strength, byte dexterity, byte stamina, byte luck) : base(id, name, type, level, valueBuy, valueSell)
         {
             this.attackMinimum = attackMinimum;
             this.attackMaximum = attackMaximum;
@@ -20,7 +20,7 @@ namespace DiscordBot.Model
             this.strength = strength;
             this.dexterity = dexterity;
             this.stamina = stamina;
-            this.luck = sense;
+            this.luck = luck;
         }
 
         public override string ToString()

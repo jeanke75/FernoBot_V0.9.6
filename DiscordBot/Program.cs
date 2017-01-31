@@ -481,9 +481,9 @@ namespace DiscordBot
                         }
                     });
                 
-                cgb.CreateCommand("sense")
-                    .Alias(new string[] { "sns" })
-                    .Description("Assign an amount of stat points to Sense.")
+                cgb.CreateCommand("luck")
+                    .Alias(new string[] { "lck" })
+                    .Description("Assign an amount of stat points to Luck.")
                     .Parameter("Amount", ParameterType.Required)
                     .AddCheck((command, user, channel) => !paused)
                     .Do(async e =>
