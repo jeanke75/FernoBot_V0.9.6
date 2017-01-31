@@ -689,7 +689,7 @@ namespace DiscordBot.Data
                 {
                     using (SqlCommand cmd = conn.CreateCommand())
                     {
-                        string command = "select {0}, row_number() over (order by y.ItemID) as rownum from (" +
+                        string command = "select {0}{1} from (" +
                                          "select Items.ItemID, Items.Name, Items.Type, " +
                                          "case when Inventory.ItemID in (" +
                                          "select x.ItemID from (" +
@@ -716,7 +716,7 @@ namespace DiscordBot.Data
                                          "where y.Amount > 0 ";
 
 
-                        cmd.CommandText = string.Format(command, "CAST((count(1) / 10.0) + 0.9 as int) as Pages");
+                        cmd.CommandText = string.Format(command, "CAST((count(1) / 10.0) + 0.9 as int) as Pages", "");
                         cmd.Parameters.Add("@user", DbType.Int64).Value = userId;
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
@@ -737,7 +737,7 @@ namespace DiscordBot.Data
                         int itemsPerPage = 10;
                         int start = (page - 1) * itemsPerPage;
 
-                        cmd.CommandText = string.Format("select z.ItemID, z.Name, z.Type, z.Amount from (" + command + ") z where z.rownum between {1} AND {2}", "*", start, start + itemsPerPage);
+                        cmd.CommandText = string.Format("select z.ItemID, z.Name, z.Type, z.Amount from (" + command + ") z where z.rownum between {2} AND {3}", "y.*", ", row_number() over (order by y.ItemID) as rownum " start, start + itemsPerPage);
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
                             while (await reader.ReadAsync())
