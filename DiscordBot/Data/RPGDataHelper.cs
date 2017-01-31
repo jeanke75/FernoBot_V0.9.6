@@ -921,7 +921,7 @@ namespace DiscordBot.Data
                         views.Add("PotionsView");
                         views.Add("ItemsView");
 
-                        cmd.Parameters.AddWithValue("@name", name);
+                        cmd.Parameters.Add("@name", DbType.String).Value = name;
 
                         // do an exact search in each type of item
                         foreach (string view in views)
@@ -956,6 +956,10 @@ namespace DiscordBot.Data
                             }
                         }
                     }
+                }
+                catch( Exception ex)
+                {
+                    throw ex;
                 }
                 finally
                 {
