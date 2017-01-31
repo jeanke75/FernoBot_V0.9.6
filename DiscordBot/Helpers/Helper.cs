@@ -35,7 +35,7 @@ namespace DiscordBot.Helpers
                 case "W":
                     item = new Weapon((int)reader["ItemID"],
                                       (string)reader["Name"],
-                                      (char)reader["Type"],
+                                      ((string)reader["Type"])[0],
                                       (byte)reader["Level"],
                                       (int)reader["ValueBuy"],
                                       (int)reader["ValueSell"],
@@ -50,8 +50,8 @@ namespace DiscordBot.Helpers
                 case "A":
                     item = new Armor((int)reader["ItemID"],
                                      (string)reader["Name"],
-                                     (char)reader["Type"],
-                                     (char)reader["SubType"],
+                                     ((string)reader["Type"])[0],
+                                     ((string)reader["SubType"])[0],
                                      (byte)reader["Level"],
                                      (int)reader["ValueBuy"],
                                      (int)reader["ValueSell"],
@@ -63,20 +63,20 @@ namespace DiscordBot.Helpers
                     break;
                 case "P":
                     item = new Potion((int)reader["ItemID"],
-                                     (string)reader["Name"],
-                                     (char)reader["Type"],
-                                     (byte)reader["Level"],
-                                     (int)reader["ValueBuy"],
-                                     (int)reader["ValueSell"],
-                                     (short)reader["Heal"]);
+                                      (string)reader["Name"],
+                                      ((string)reader["Type"])[0],
+                                      (byte)reader["Level"],
+                                      (int)reader["ValueBuy"],
+                                      (int)reader["ValueSell"],
+                                      (short)reader["Heal"]);
                     break;
                 default:
                     item = new Item((int)reader["ItemID"],
-                                     (string)reader["Name"],
-                                     (char)reader["Type"],
-                                     (byte)reader["Level"],
-                                     (int)reader["ValueBuy"],
-                                     (int)reader["ValueSell"]);
+                                    (string)reader["Name"],
+                                    ((string)reader["Type"])[0],
+                                    (byte)reader["Level"],
+                                    (int)reader["ValueBuy"],
+                                    (int)reader["ValueSell"]);
                     break;
             }
             return item;
