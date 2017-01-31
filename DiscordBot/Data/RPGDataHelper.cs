@@ -1615,10 +1615,10 @@ namespace DiscordBot.Data
                         }
 
                         List<Tuple<Item, byte, byte>> itemsNeeded = new List<Tuple<Item, byte, byte>>();
-                        cmd.CommandText = "select UpgradeCost.NeededItemId as ItemID, UpgradeCost.Amount as AmountNeeded, isnull(Inv.Amount, 0) as AmountOwned, " +
-                                          "Items.Name, 'I' as Type, Items.Level, Items.valueBuy, Items.ValueSell " +
+                        cmd.CommandText = "select UpgradeCost.NeededItemId as ItemID, UpgradeCost.Amount as AmountNeeded, cast(isnull(Inv.Amount, 0) as TINYINT) as AmountOwned, " +
+                                          "Items.Name, 'I' as Type, Items.Level, Items.ValueBuy, Items.ValueSell " +
                                           "from UpgradeCost " +
-                                          "left join (select UserID, ItemID, cast(case when exists(select 1 from(select HelmetID as ItemID from Equipped where UserID = @user " +
+                                          "left join (select UserID, ItemID, case when exists(select 1 from(select HelmetID as ItemID from Equipped where UserID = @user " +
                                           "union " +
                                           "select UpperID as ItemID from Equipped where UserID = @user " +
                                           "union " +
@@ -1633,7 +1633,7 @@ namespace DiscordBot.Data
                                           "select ShieldID as ItemID from Equipped where UserID = @user " +
                                           "union " +
                                           "select WeaponID as ItemID from Equipped where UserID = @user) x " +
-                                          "where x.ItemID = Inventory.ItemID) then Amount-1 else Amount end as INT) as Amount " +
+                                          "where x.ItemID = Inventory.ItemID) then Amount-1 else Amount end as Amount " +
                                           "from inventory where Inventory.UserID = @user) Inv on Inv.ItemID = UpgradeCost.NeededItemId " +
                                           "inner join Items on Items.ItemID = UpgradeCost.NeededItemId " +
                                           "where UpgradeCost.UpgradeItemId = @item";
