@@ -1615,10 +1615,10 @@ namespace DiscordBot.Data
                         }
 
                         List<Tuple<Item, byte, byte>> itemsNeeded = new List<Tuple<Item, byte, byte>>();
-                        cmd.CommandText = "select UpgradeCost.NeededItemId as ID, UpgradeCost.Amount as AmountNeeded, isnull(Inv.Amount, 0) as AmountOwned, " +
+                        cmd.CommandText = "select UpgradeCost.NeededItemId as ItemID, UpgradeCost.Amount as AmountNeeded, isnull(Inv.Amount, 0) as AmountOwned, " +
                                           "Items.Name, 'I' as Type, Items.Level, Items.valueBuy, Items.ValueSell " +
                                           "from UpgradeCost " +
-                                          "left join (select UserID, ItemID, cast(case when exists(select 1 from(select HelmetID as ID from Equipped " +
+                                          "left join (select UserID, ItemID, cast(case when exists(select 1 from(select HelmetID as ItemID from Equipped where UserID = @user " +
                                           "union " +
                                           "select UpperID as ItemID from Equipped where UserID = @user " +
                                           "union " +
