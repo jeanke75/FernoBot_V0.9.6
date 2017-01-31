@@ -1490,7 +1490,7 @@ namespace DiscordBot.Data
                             {
                                 drops.Add(new Drop((int)reader["ItemID"],
                                                    (string)reader["name"],
-                                                   Helper.rng.Next((int)reader["AmountMin"], (int)reader["AmountMax"])));
+                                                   Helper.rng.Next((byte)reader["AmountMin"], (byte)reader["AmountMax"])));
                             }
                             reader.Close();
                         }
