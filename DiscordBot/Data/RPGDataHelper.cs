@@ -139,42 +139,47 @@ namespace DiscordBot.Data
                             cmd.CommandText = "insert into Stats (UserID, Health, Level, Experience, Strength, Dexterity, Stamina, Luck, Gold) " +
                                               "values (@user, 72, 1, 0, 0, 0, 0, 0, 0)";
                             await cmd.ExecuteNonQueryAsync();
-                            
-                            /*
+
+                            string cw = "(select ItemID from Items where Name = 'Wooden Sword')";
+                            string ch = "(select ItemID from Items where Name = 'Cloth Headband')";
+                            string cu = "(select ItemID from Items where Name = 'Cloth Shirt')";
+                            string cp = "(select ItemID from Items where Name = 'Cloth Pants')";
+                            string cb = "(select ItemID from Items where Name = 'Cloth Boots')";
+                            string cg = "(select ItemID from Items where Name = 'Cloth Gloves')";
+
                             // give weapon
-                            cmd.CommandText = "insert into Inventory (UserID, ItemID, Amount) values (@user, {0}, 1)", 2);
+                            cmd.CommandText = $"insert into Inventory (UserID, ItemID, Amount) values (@user, {cw}, 1)";
                             await cmd.ExecuteNonQueryAsync();
 
                             // give helmet
-                            cmd.CommandText = string.Format("insert into Inventory (UserID, ItemID, Amount) " +
-                                                            "values (@user, {0}, 1)", 13);
+                            cmd.CommandText = $"insert into Inventory (UserID, ItemID, Amount) values (@user, {ch}, 1)";
                             await cmd.ExecuteNonQueryAsync();
+
                             // give upper
-                            cmd.CommandText = string.Format("insert into Inventory (User, ItemID, Amount) " +
-                                                            "values (@user, {0}, 1)", 23);
+                            cmd.CommandText = $"insert into Inventory (User, ItemID, Amount) values (@user, {cu}, 1)";
                             await cmd.ExecuteNonQueryAsync();
+
                             // give pants
-                            cmd.CommandText = string.Format("insert into Inventory (User, ItemID, Amount) " +
-                                                            "values (@user, {0}, 1)", 33);
+                            cmd.CommandText = $"insert into Inventory (User, ItemID, Amount) values (@user, {cp}, 1)";
                             await cmd.ExecuteNonQueryAsync();
+
                             //give boots
-                            cmd.CommandText = string.Format("insert into Inventory (User, ItemID, Amount) " +
-                                                            "values (@user, {0}, 1)", 43);
+                            cmd.CommandText = $"insert into Inventory (User, ItemID, Amount) values (@user, {cb}, 1)";
                             await cmd.ExecuteNonQueryAsync();
+
                             // give gauntlets
-                            cmd.CommandText = string.Format("insert into Inventory (User, ItemID, Amount) " +
-                                                            "values (@user, {0}, 1)", 53);
-                            await cmd.ExecuteNonQueryAsync();*/
+                            cmd.CommandText = $"insert into Inventory (User, ItemID, Amount) values (@user, {cg}, 1)";
+                            await cmd.ExecuteNonQueryAsync();
 
                             // equip gear
                             cmd.CommandText = "insert into Equipped (UserID, HelmetID, UpperID, PantsID, BootsID, GloveID, MantleID, ShieldID, WeaponID) " +
-                                              "values (@user, null, null, null, null, null, null, null, null)"; // 13, 23, 33, 43, 53, 0, 0, 2);
+                                              $"values (@user, {ch}, {cu}, {cp}, {cb}, {cg}, null, null, {cw})";
                             await cmd.ExecuteNonQueryAsync();
 
                             //create cooldowns
                             cmd.Parameters.Add("@DateTime", DbType.DateTime).Value = new DateTime(2000, 1, 1, 0, 0, 0);
                             cmd.CommandText = "insert into Cooldowns(UserID, Start, Stats, Assign, Inventory, Equip, Donate, Info, Shop, Attack, Heal, Craft) " +
-                                              "values (@user, @DateTime, @DateTime, @DateTime, @DateTime, @DateTime, @DateTime, @DateTime, @DateTime, @DateTime, @DateTime, @DateTime)";//, Helper.DateTimeToString(new DateTime(2000, 1, 1, 0, 0, 0)));
+                                              "values (@user, @DateTime, @DateTime, @DateTime, @DateTime, @DateTime, @DateTime, @DateTime, @DateTime, @DateTime, @DateTime, @DateTime)";
                             await cmd.ExecuteNonQueryAsync();
                         }
                         tr.Commit();
@@ -257,14 +262,14 @@ namespace DiscordBot.Data
         internal async static Task UnequipItems(long userId, bool weapon, bool helmet, bool upper, bool pants, bool boots, bool gauntlets, bool mantle, bool shield)
         {
             string s = "update Equipped set ";
-            if (weapon) s += "WeaponID = 0,";
-            if (helmet) s += "HelmetID = 0,";
-            if (upper) s += "UpperID = 0,";
-            if (pants) s += "PantsID = 0,";
-            if (boots) s += "BootsID = 0,";
-            if (gauntlets) s += "GloveID = 0,";
-            if (mantle) s += "MantleID = 0,";
-            if (shield) s += "ShieldID = 0,";
+            if (weapon) s += "WeaponID = null,";
+            if (helmet) s += "HelmetID = null,";
+            if (upper) s += "UpperID = null,";
+            if (pants) s += "PantsID = null,";
+            if (boots) s += "BootsID = null,";
+            if (gauntlets) s += "GloveID = null,";
+            if (mantle) s += "MantleID = null,";
+            if (shield) s += "ShieldID = null,";
 
             s = s.Substring(0, s.Length - 1);
             using (SqlConnection conn = Helper.getConnection())
