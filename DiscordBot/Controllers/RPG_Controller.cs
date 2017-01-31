@@ -144,7 +144,7 @@ namespace DiscordBot.Controllers
             result = null;
 
             s += "+";
-            for (int i = 0; i < header.Length - 2; i++) s += "-";
+            for (int i = 0; i < header.Length - 3; i++) s += "-";
 
             return s + "+```";
         }

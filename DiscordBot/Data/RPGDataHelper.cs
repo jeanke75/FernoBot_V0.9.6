@@ -1105,8 +1105,12 @@ namespace DiscordBot.Data
                             page = 1;
                         else if (page > pageCount)
                             page = pageCount;
+                        
+                        // retrieve shop items
+                        int itemsPerPage = 10;
+                        int start = (page - 1) * itemsPerPage;
 
-                        cmd.CommandText = string.Format("select * from Items where ValueBuy > 0 order by Level, ValueBuy limit {0}, 10", (page - 1) * 10);
+                        cmd.CommandText = string.Format("select * from (select *, row_number() over (Level) as rownum from Items where ValueBuy > 0) where rownum between {0} and {1} order by rownum", start, start + itemsPerPage);
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
                             while (await reader.ReadAsync())
