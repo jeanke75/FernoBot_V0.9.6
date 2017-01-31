@@ -1201,6 +1201,7 @@ namespace DiscordBot
 
             _client.GetService<CommandService>().CreateCommand("spawn")
                 .Description("Spawn an item in your inventory. (testing only!)")
+                .Parameter("Person", ParameterType.Required)
                 .Parameter("Item", ParameterType.Required)
                 .Parameter("Amount", ParameterType.Required)
                 .AddCheck((command, user, channel) => !paused && user.Id == 140470317440040960)
