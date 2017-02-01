@@ -21,7 +21,7 @@ namespace DiscordBot
             new Program().Start();
         }
 
-        private DiscordClient _client;
+        private static DiscordClient _client;
 
         public void Start()
         {
