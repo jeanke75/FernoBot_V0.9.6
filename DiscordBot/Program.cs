@@ -21,7 +21,7 @@ namespace DiscordBot
             new Program().Start();
         }
 
-        private static DiscordClient _client;
+        private DiscordClient _client;
 
         public void Start()
         {
@@ -1225,7 +1225,7 @@ namespace DiscordBot
                 .Do(async e =>
                 {
                     paused = true;
-                    _client.SetStatus(UserStatus.Offline);
+                    _client.SetStatus(UserStatus.DoNotDisturb);
                     await e.Channel.SendMessage("The bot has been paused and will stop responding to commands!");
                 });
             
