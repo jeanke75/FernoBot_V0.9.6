@@ -1225,6 +1225,7 @@ namespace DiscordBot
                 .Do(async e =>
                 {
                     paused = true;
+                    _client.SetStatus(UserStatus.Offline);
                     await e.Channel.SendMessage("The bot has been paused and will stop responding to commands!");
                 });
             
@@ -1235,6 +1236,7 @@ namespace DiscordBot
                 .Do(async e =>
                 {
                     paused = false;
+                    _client.SetStatus(UserStatus.Online);
                     await e.Channel.SendMessage("The bot has been unpaused and will respond to commands again.");
                 });
 
