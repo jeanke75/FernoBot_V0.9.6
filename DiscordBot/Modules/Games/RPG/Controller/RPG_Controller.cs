@@ -223,7 +223,9 @@ namespace DiscordBot.Modules.Games.RPG.Controller
             if (targetId == 0) return $"{Helper.getDiscordDisplayName(caller)}, this person hasn't started their adventure yet.";
 
             long goldToDonate = 0;
-            if (!long.TryParse(amount, out goldToDonate) || goldToDonate <= 0) return $"{Helper.getDiscordDisplayName(caller)} tried to donate an invalid amount of gold.";
+            if (!long.TryParse(amount, out goldToDonate)) return $"{Helper.getDiscordDisplayName(caller)} tried to donate an invalid amount of gold.";
+
+            if (goldToDonate <= 0) return $"{Helper.getDiscordDisplayName(caller)} 0 gold..";
 
             if (await RPGDataHelper.GetCurrentUserGold(callerId) < goldToDonate) return $"{Helper.getDiscordDisplayName(caller)}, you don't have this much gold.";
 
