@@ -219,13 +219,11 @@ namespace DiscordBot.Modules.Games.RPG.Controller
             long callerId = await RPGDataHelper.GetUserID(caller.Id);
             if (callerId == 0) return $"{Helper.getDiscordDisplayName(caller)}, you haven't started your adventure yet. Type !create to begin.";
             if (caller == target) return $"{Helper.getDiscordDisplayName(caller)}, you can't donate to yourself";
-            long targetId = await RPGDataHelper.GetUserID(caller.Id);
-            if (targetId == 0) return $"{Helper.getDiscordDisplayName(caller)}, this person hasn't started their adventure yet.";
+            long targetId = await RPGDataHelper.GetUserID(target.Id);
+            if (targetId == 0) return $"{Helper.getDiscordDisplayName(target)} hasn't started their adventure yet.";
 
             long goldToDonate = 0;
-            if (!long.TryParse(amount, out goldToDonate)) return $"{Helper.getDiscordDisplayName(caller)} tried to donate an invalid amount of gold.";
-
-            if (goldToDonate <= 0) return $"{Helper.getDiscordDisplayName(caller)} 0 gold..";
+            if (!long.TryParse(amount, out goldToDonate) || goldToDonate <= 0) return $"{Helper.getDiscordDisplayName(caller)} tried to donate an invalid amount of gold.";
 
             if (await RPGDataHelper.GetCurrentUserGold(callerId) < goldToDonate) return $"{Helper.getDiscordDisplayName(caller)}, you don't have this much gold.";
 
