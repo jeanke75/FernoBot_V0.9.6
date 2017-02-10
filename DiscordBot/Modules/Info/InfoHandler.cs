@@ -71,7 +71,7 @@ namespace DiscordBot.Modules.Info
                                             $"[Owner]           {e.Server.Owner}" + Environment.NewLine +
                                             $"[User Count]      {e.Server.UserCount}" + Environment.NewLine +
                                             $"[Channel Count]   {e.Server.ChannelCount}" + Environment.NewLine +
-                                            $"[Default Channel] {e.Server.DefaultChannel.Mention}" + Environment.NewLine +
+                                            $"[Default Channel] #{e.Server.DefaultChannel}" + Environment.NewLine +
                                             $"[Role Count]      {roles.Count}" + Environment.NewLine +
                                             $"[Roles]           {string.Join(", ", roles)}" + Environment.NewLine +
                                             $"[Creation date]   {e.Server.Owner.JoinedAt} ({(DateTime.Now - e.Server.Owner.JoinedAt).Days} days ago)" +
