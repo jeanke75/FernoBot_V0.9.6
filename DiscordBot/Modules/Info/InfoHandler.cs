@@ -39,9 +39,11 @@ namespace DiscordBot.Modules.Info
                                 channelcount = channelcount + server.ChannelCount;
                             }
 
+                            TimeSpan uptime = DateTime.Now.Subtract(start);
+
                             string message = "```ini" + Environment.NewLine +
-                                             "Bot info:" + Environment.NewLine + Environment.NewLine +
-                                            $"[Uptime]   {DateTime.Now - start}" + Environment.NewLine +
+                                             "Bot info:" + Environment.NewLine +
+                                            $"[Uptime]   {uptime.Days}d {uptime.Hours}h {uptime.Minutes}m {uptime.Seconds}s" + Environment.NewLine +
                                             $"[Servers]  {servercount}" + Environment.NewLine +
                                             $"[Channels] {channelcount}" + Environment.NewLine +
                                             $"[Users]    {usercount}" + Environment.NewLine +
@@ -64,8 +66,8 @@ namespace DiscordBot.Modules.Info
                         {
                             List<string> roles = e.Server.Roles.Where(x => !x.IsEveryone).Select(x => x.Name).ToList();
                             string message = "```ini" + Environment.NewLine +
-                                             "Server info:" + Environment.NewLine + Environment.NewLine +
-                                            $"[Name]            {DateTime.Now - start}" + Environment.NewLine +
+                                             "Server info:" + Environment.NewLine +
+                                            $"[Name]            {e.Server.Name}" + Environment.NewLine +
                                             $"[Owner]           {e.Server.Owner}" + Environment.NewLine +
                                             $"[User Count]      {e.Server.UserCount}" + Environment.NewLine +
                                             $"[Channel Count]   {e.Server.ChannelCount}" + Environment.NewLine +

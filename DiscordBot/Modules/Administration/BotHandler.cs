@@ -34,13 +34,13 @@ namespace DiscordBot.Modules.Administration
                 });
             
             service.CreateCommand("pause")
-                    .Description("The bot will stop responding to commands untill unDiscordBot.paused.")
+                    .Description("The bot will stop responding to commands untill unpaused.")
                     .AddCheck((command, user, channel) => !DiscordBot.paused && user.Id == 140470317440040960)
                     .Hide()
                     .Do(async e =>
                     {
                         DiscordBot.paused = true;
-                        await e.Channel.SendMessage("The bot has been DiscordBot.paused and will stop responding to commands!");
+                        await e.Channel.SendMessage("The bot has been paused and will stop responding to commands!");
                     });
 
             service.CreateCommand("unpause")
@@ -50,7 +50,7 @@ namespace DiscordBot.Modules.Administration
                 .Do(async e =>
                 {
                     DiscordBot.paused = false;
-                    await e.Channel.SendMessage("The bot has been unDiscordBot.paused and will respond to commands again.");
+                    await e.Channel.SendMessage("The bot has been unpaused and will respond to commands again.");
                 });
 
             service.CreateCommand("stop")
