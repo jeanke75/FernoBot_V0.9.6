@@ -1,4 +1,4 @@
-﻿namespace DiscordBot.Model
+﻿namespace DiscordBot.Modules.Games.RPG.Model
 {
     class InventoryItem : Item
     {

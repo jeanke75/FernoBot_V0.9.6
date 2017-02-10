@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace DiscordBot.Model
+namespace DiscordBot.Modules.Games.RPG.Model
 {
     class Monster
     {

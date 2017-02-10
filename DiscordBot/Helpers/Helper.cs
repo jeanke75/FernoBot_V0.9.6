@@ -3,7 +3,7 @@ using System.Configuration;
 using System.Data.SqlClient;
 using System.Linq;
 using Discord;
-using DiscordBot.Model;
+using DiscordBot.Modules.Games.RPG.Model;
 
 namespace DiscordBot.Helpers
 {

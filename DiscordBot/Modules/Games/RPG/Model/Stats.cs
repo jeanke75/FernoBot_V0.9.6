@@ -2,7 +2,7 @@
 using Discord;
 using DiscordBot.Helpers;
 
-namespace DiscordBot.Model
+namespace DiscordBot.Modules.Games.RPG.Model
 {
     public class Stats
     {

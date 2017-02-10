@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using Discord;
-using DiscordBot.Data;
+using DiscordBot.Modules.Social.Data;
 using DiscordBot.Helpers;
 
-namespace DiscordBot.Controllers
+namespace DiscordBot.Modules.Social.Controller
 {
     public static class Social_Controller
     {

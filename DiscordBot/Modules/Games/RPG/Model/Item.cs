@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DiscordBot.Model
+namespace DiscordBot.Modules.Games.RPG.Model
 {
     public class Item
     {

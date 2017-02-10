@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace DiscordBot.Data
+namespace DiscordBot.Modules.Social.Data
 {
     public class SocialDataHelper
     {

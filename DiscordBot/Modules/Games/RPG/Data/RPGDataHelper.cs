@@ -5,9 +5,9 @@ using System.Data.SqlClient;
 using System.Threading.Tasks;
 using Discord;
 using DiscordBot.Helpers;
-using DiscordBot.Model;
+using DiscordBot.Modules.Games.RPG.Model;
 
-namespace DiscordBot.Data
+namespace DiscordBot.Modules.Games.RPG.Data
 {
     static class RPGDataHelper
     {

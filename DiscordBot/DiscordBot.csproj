@@ -153,24 +153,32 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Controllers\RPG_Controller.cs" />
-    <Compile Include="Controllers\Social_Controller.cs" />
-    <Compile Include="Data\RPGDataHelper.cs" />
-    <Compile Include="Data\SocialDataHelper.cs" />
+    <Compile Include="DiscordBot.cs" />
+    <Compile Include="Modules\Administration\BotHandler.cs" />
+    <Compile Include="Modules\Administration\SqlHandler.cs" />
+    <Compile Include="Modules\Administration\ServerAdministrationHandler.cs" />
+    <Compile Include="Modules\DiscordHandler.cs" />
+    <Compile Include="Modules\Events\UserEventHandler.cs" />
+    <Compile Include="Modules\Games\RPG\Controller\RPG_Controller.cs" />
+    <Compile Include="Modules\Games\RPG\RPGHandler.cs" />
+    <Compile Include="Modules\Social\Controller\Social_Controller.cs" />
+    <Compile Include="Modules\Games\RPG\Data\RPGDataHelper.cs" />
+    <Compile Include="Modules\Social\Data\SocialDataHelper.cs" />
     <Compile Include="Exceptions\RPGException.cs" />
     <Compile Include="Helpers\Extensions.cs" />
     <Compile Include="Helpers\Helper.cs" />
-    <Compile Include="Model\Armor.cs" />
-    <Compile Include="Model\Drop.cs" />
-    <Compile Include="Model\Equipment.cs" />
-    <Compile Include="Model\InventoryItem.cs" />
-    <Compile Include="Model\Item.cs" />
-    <Compile Include="Model\Monster.cs" />
-    <Compile Include="Model\Potion.cs" />
-    <Compile Include="Model\Weapon.cs" />
+    <Compile Include="Modules\Games\RPG\Model\Armor.cs" />
+    <Compile Include="Modules\Games\RPG\Model\Drop.cs" />
+    <Compile Include="Modules\Games\RPG\Model\Equipment.cs" />
+    <Compile Include="Modules\Games\RPG\Model\InventoryItem.cs" />
+    <Compile Include="Modules\Games\RPG\Model\Item.cs" />
+    <Compile Include="Modules\Games\RPG\Model\Monster.cs" />
+    <Compile Include="Modules\Games\RPG\Model\Potion.cs" />
+    <Compile Include="Modules\Games\RPG\Model\Weapon.cs" />
+    <Compile Include="Modules\Social\SocialHandler.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Model\Stats.cs" />
+    <Compile Include="Modules\Games\RPG\Model\Stats.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
@@ -193,6 +201,7 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
