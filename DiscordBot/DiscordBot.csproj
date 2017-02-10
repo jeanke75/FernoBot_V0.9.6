@@ -161,6 +161,7 @@
     <Compile Include="Modules\Events\UserEventHandler.cs" />
     <Compile Include="Modules\Games\RPG\Controller\RPG_Controller.cs" />
     <Compile Include="Modules\Games\RPG\RPGHandler.cs" />
+    <Compile Include="Modules\Info\InfoHandler.cs" />
     <Compile Include="Modules\Social\Controller\Social_Controller.cs" />
     <Compile Include="Modules\Games\RPG\Data\RPGDataHelper.cs" />
     <Compile Include="Modules\Social\Data\SocialDataHelper.cs" />

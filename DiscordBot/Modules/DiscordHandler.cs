@@ -3,6 +3,7 @@ using Discord.Commands;
 using DiscordBot.Modules.Administration;
 using DiscordBot.Modules.Events;
 using DiscordBot.Modules.Games.RPG;
+using DiscordBot.Modules.Info;
 using DiscordBot.Modules.Social;
 
 namespace DiscordBot.Modules
@@ -27,6 +28,7 @@ namespace DiscordBot.Modules
         private void SetupCommandHandlers()
         {
             new BotHandler(client);
+            new InfoHandler(client);
             new ServerAdministrationHandler(client);
             new SqlHandler(client);
             new SocialHandler(client);
